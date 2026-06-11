@@ -186,13 +186,9 @@ function renderTotals() {
 function renderDetail(t, p) {
   const ped = pedidoLote(t, p);
   const areaDiff = p.area != null && p.loteArea != null && Math.abs(p.area - p.loteArea) > 1;
-  return `<tr class="detail"><td colspan="7">
+  return `<tr class="detail"><td colspan="8">
     <div class="d-grid">
       <div class="item"><span class="lbl">Modelo</span><br><span class="v">${tipoLabel(p)}</span></div>
-      <div class="item"><span class="lbl">R$/m² oferecido</span><br><span class="v">${fmtM2(p.vpm2)}</span> <span class="muted">vs ${fmtM2(t.vpm2_alvo)} pedido</span></div>
-      <div class="item"><span class="lbl">Bruto → líquido</span><br><span class="v">${fmtM(p.valor)}</span> <span class="muted">→</span> <span class="v">${fmtM(liq(p))}</span></div>
-      <div class="item"><span class="lbl">Status</span><br><span class="v">${STATUS_LABELS[p.status] || p.status}</span></div>
-      <div class="item"><span class="lbl">Datas</span><br><span class="v">${fmtDate(p.date)}</span> <span class="muted">· válida até ${fmtDate(p.validade)}</span></div>
     </div>
     <div class="d-notes">
       ${p.pagamento ? `<div><b>Pagamento:</b> ${p.pagamento}</div>` : ''}
@@ -212,7 +208,8 @@ function render() {
     <th>Terreno / lote</th>
     <th class="hide-sm" style="text-align:left">Grupo</th>
     <th>Área</th>
-    <th class="hide-sm">R$/m²</th>
+    <th class="hide-sm">R$/m² pedido</th>
+    <th class="hide-sm">R$/m² oferta</th>
     <th>Pedido</th>
     <th>Oferta líq.</th>
     <th>Δ</th>
@@ -224,6 +221,7 @@ function render() {
       <td class="hide-sm" style="text-align:left;font-weight:400;color:var(--muted)">${GRUPO_LABEL[t.grupo] || t.grupo}</td>
       <td>${fmtN(t.tamanho)} m²</td>
       <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
+      <td class="hide-sm"></td>
       <td>${fmtM(t.total_alvo)}</td>
       <td></td><td></td>
     </tr>`;
@@ -231,11 +229,13 @@ function render() {
       const ped = pedidoLote(t, p);
       const isOpen = openProps.has(p.id);
       const est = p.loteAreaFonte === 'proponente';
+      const vpm2Liq = liq(p) * 1e6 / (p.area || p.loteArea);
       html += `<tr class="oferta ${isOpen ? 'open' : ''}" onclick="toggle('${p.id}')">
         <td><span class="chev">▶</span>${p.lote} <span class="who">· ${p.buyer}</span></td>
         <td class="hide-sm"></td>
         <td><span class="${est ? 'est' : ''}" ${est ? 'title="área segundo o proponente — a confirmar"' : ''}>${fmtN(p.loteArea)} m²${est ? '*' : ''}</span></td>
-        <td class="hide-sm">${fmtM2(p.vpm2)}</td>
+        <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
+        <td class="hide-sm">${fmtM2(vpm2Liq)}</td>
         <td>${fmtM(ped)}</td>
         <td><b>${fmtM(liq(p))}</b></td>
         <td>${pctTag(liq(p), ped)}</td>
@@ -247,13 +247,14 @@ function render() {
   document.getElementById('tbl').innerHTML = html;
 
   if (without.length) {
-    let extra = `<tbody><tr><td colspan="7" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
+    let extra = `<tbody><tr><td colspan="8" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
     for (const t of without) {
       extra += `<tr class="empty">
         <td style="padding-left:8px">${t.name}</td>
         <td class="hide-sm" style="text-align:left;color:var(--muted)">${GRUPO_LABEL[t.grupo] || t.grupo}</td>
         <td>${fmtN(t.tamanho)} m²</td>
         <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
+        <td class="hide-sm">—</td>
         <td>${fmtM(t.total_alvo)}</td>
         <td>—</td><td>—</td>
       </tr>`;
