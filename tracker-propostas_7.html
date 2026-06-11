@@ -57,7 +57,7 @@
   .muted { color: var(--muted); }
   .est { border-bottom: 1px dotted var(--muted); cursor: help; }
 
-  tr.empty td { color: var(--muted); font-weight: 400; }
+  tr.empty td { font-weight: 400; }
   .empty-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 26px 0 6px 8px; }
 
   /* detalhe da proposta */
@@ -96,11 +96,11 @@ const TERRENOS = [
   { id: 'posto-ws',      name: 'Posto Washington Soares', grupo: 'ab', tamanho: 4200,  vpm2_alvo: 3000, total_alvo: 12.6,  proprietario: 'TPA' },
   { id: 'amaralina',     name: 'Amaralina',            grupo: 'ab',     tamanho: 2813,  vpm2_alvo: 3000, total_alvo: 8.4,   proprietario: 'TPA' },
   { id: 'quadra-2-4',    name: 'Quadra 2,4',           grupo: 'familia',tamanho: 17000, vpm2_alvo: 5000, total_alvo: 85.0,  proprietario: 'Já dividida (→ TPA)' },
-  { id: 'sitio-butanta', name: 'Sítio Butantã',        grupo: 'familia',tamanho: 64093, vpm2_alvo: 1500, total_alvo: 96.1,  proprietario: 'Novo Horizonte' },
+  { id: 'sitio-butanta', name: 'Sítio Butantã',        grupo: 'familia',tamanho: 64093, vpm2_alvo: 2000, total_alvo: 128.2, proprietario: 'Novo Horizonte' },
   { id: 'quadra-45',     name: 'Quadra 45 Lote 1 e 2',  grupo: 'familia',tamanho: 9775,  vpm2_alvo: 2000, total_alvo: 19.6,  proprietario: 'Já dividida (→ TPA)' },
   { id: 'quadra-99',     name: 'Quadra 99 Lote 1 e 2',  grupo: 'familia',tamanho: 13000, vpm2_alvo: 1500, total_alvo: 19.5,  proprietario: 'Já dividida (→ TPA)' },
   { id: 'quadra-6',      name: 'Quadra 6',              grupo: 'familia',tamanho: 4300,  vpm2_alvo: 2000, total_alvo: 8.6,   proprietario: 'ERG Par' },
-  { id: 'gleba-8s',      name: 'Gleba 8S',              grupo: 'familia',tamanho: 82500, vpm2_alvo: 1500, total_alvo: 123.75,proprietario: 'ERG Par' },
+  { id: 'gleba-8s',      name: 'Gleba 8S',              grupo: 'familia',tamanho: 82500, vpm2_alvo: 2000, total_alvo: 165.0, proprietario: 'ERG Par' },
   { id: 'quadra-xim',    name: 'Quadra XIM',            grupo: 'familia',tamanho: 10813, vpm2_alvo: 2000, total_alvo: 21.6,  proprietario: 'ERG Par' },
   { id: 'quadra-6pe',    name: 'Quadra 6PE',            grupo: 'familia',tamanho: 5500,  vpm2_alvo: 1000, total_alvo: 5.5,   proprietario: 'Já dividida (→ TPA)' },
 ];
@@ -146,6 +146,7 @@ const pctTag = (a, b) => {
   return `<span class="${p >= 0 ? 'delta-pos' : 'delta-neg'}">${p >= 0 ? '+' : ''}${p.toFixed(0)}%</span>`;
 };
 const liq = p => p.valorLiquido != null ? p.valorLiquido : p.valor;
+const GRUPO_LABEL = { ab: 'AB', familia: 'Família' };
 const tipoLabel = p => {
   if (p.tipo === 'permuta') return `Permuta financeira ${String(p.permutaPct).replace('.', ',')}%`;
   if (p.tipo === 'permuta-fisica') return `Permuta física ${String(p.permutaPct).replace('.', ',')}%`;
@@ -162,17 +163,30 @@ function renderTotals() {
   const nProps = Object.values(PROPOSALS).reduce((s, a) => s + a.length, 0);
   const nTerrenosProp = Object.keys(PROPOSALS).filter(k => PROPOSALS[k].length).length;
   const pedidoTotal = TERRENOS.reduce((s, t) => s + t.total_alvo, 0);
+  // total ofertado: por terreno, o melhor entre (oferta pela área inteira) e (soma das ofertas por lote),
+  // para não somar escopos sobrepostos (ex.: Gleba 8S inteira + Quadra 5)
+  let ofertadoTotal = 0;
+  for (const t of TERRENOS) {
+    const props = PROPOSALS[t.id] || [];
+    if (!props.length) continue;
+    const whole = props.filter(p => (p.loteArea || 0) >= t.tamanho * 0.97);
+    const partial = props.filter(p => (p.loteArea || 0) < t.tamanho * 0.97);
+    const bestWhole = whole.length ? Math.max(...whole.map(liq)) : 0;
+    const sumPartial = partial.reduce((s, p) => s + liq(p), 0);
+    ofertadoTotal += Math.max(bestWhole, sumPartial);
+  }
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
     <div><span class="lbl">Com proposta</span><span class="val">${nTerrenosProp}</span></div>
     <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
-    <div><span class="lbl">Pedido total (portfólio)</span><span class="val">${fmtM(pedidoTotal)}</span></div>`;
+    <div><span class="lbl">Pedido total (portfólio)</span><span class="val">${fmtM(pedidoTotal)}</span></div>
+    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertadoTotal)}</span></div>`;
 }
 
 function renderDetail(t, p) {
   const ped = pedidoLote(t, p);
   const areaDiff = p.area != null && p.loteArea != null && Math.abs(p.area - p.loteArea) > 1;
-  return `<tr class="detail"><td colspan="6">
+  return `<tr class="detail"><td colspan="7">
     <div class="d-grid">
       <div class="item"><span class="lbl">Modelo</span><br><span class="v">${tipoLabel(p)}</span></div>
       <div class="item"><span class="lbl">R$/m² oferecido</span><br><span class="v">${fmtM2(p.vpm2)}</span> <span class="muted">vs ${fmtM2(t.vpm2_alvo)} pedido</span></div>
@@ -196,6 +210,7 @@ function render() {
 
   let html = `<thead><tr>
     <th>Terreno / lote</th>
+    <th class="hide-sm" style="text-align:left">Grupo</th>
     <th>Área</th>
     <th class="hide-sm">R$/m²</th>
     <th>Pedido</th>
@@ -206,6 +221,7 @@ function render() {
   for (const t of withProps) {
     html += `<tr class="terreno">
       <td>${t.name}</td>
+      <td class="hide-sm" style="text-align:left;font-weight:400;color:var(--muted)">${GRUPO_LABEL[t.grupo] || t.grupo}</td>
       <td>${fmtN(t.tamanho)} m²</td>
       <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
       <td>${fmtM(t.total_alvo)}</td>
@@ -217,6 +233,7 @@ function render() {
       const est = p.loteAreaFonte === 'proponente';
       html += `<tr class="oferta ${isOpen ? 'open' : ''}" onclick="toggle('${p.id}')">
         <td><span class="chev">▶</span>${p.lote} <span class="who">· ${p.buyer}</span></td>
+        <td class="hide-sm"></td>
         <td><span class="${est ? 'est' : ''}" ${est ? 'title="área segundo o proponente — a confirmar"' : ''}>${fmtN(p.loteArea)} m²${est ? '*' : ''}</span></td>
         <td class="hide-sm">${fmtM2(p.vpm2)}</td>
         <td>${fmtM(ped)}</td>
@@ -230,10 +247,11 @@ function render() {
   document.getElementById('tbl').innerHTML = html;
 
   if (without.length) {
-    let extra = `<tbody><tr><td colspan="6" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
+    let extra = `<tbody><tr><td colspan="7" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
     for (const t of without) {
       extra += `<tr class="empty">
         <td style="padding-left:8px">${t.name}</td>
+        <td class="hide-sm" style="text-align:left;color:var(--muted)">${GRUPO_LABEL[t.grupo] || t.grupo}</td>
         <td>${fmtN(t.tamanho)} m²</td>
         <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
         <td>${fmtM(t.total_alvo)}</td>
