@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tracker de Propostas — Terrenos</title>
+<style>
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --border: #E2DDD6;
+    --text: #1A1814;
+    --muted: #8A857C;
+    --accent: #2A5C45;
+    --accent-light: #EAF2EE;
+    --warn: #C0392B;
+    --warn-light: #FDECEA;
+    --blue: #2B4F8C;
+    --blue-light: #EBF0F9;
+    --gold: #9A6F1E;
+    --gold-light: #FBF3E2;
+    --font-display: 'Georgia', 'Times New Roman', serif;
+    --font-body: -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); font-family: var(--font-body); color: var(--text); min-height: 100vh; padding: 32px 24px; }
+
+  header { max-width: 1300px; margin: 0 auto 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .header-left h1 { font-family: var(--font-display); font-size: 26px; font-weight: normal; letter-spacing: -0.5px; }
+  .header-left p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .summary-bar { max-width: 1300px; margin: 0 auto 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .summary-card .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 5px; }
+  .summary-card .value { font-family: var(--font-display); font-size: 20px; }
+  .summary-card .value.green { color: var(--accent); }
+  .summary-card .value.blue { color: var(--blue); }
+
+  .main { max-width: 1300px; margin: 0 auto; }
+
+  /* Group headers */
+  .group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 24px 0 8px 4px; }
+
+  .terreno-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+
+  .terreno-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; gap: 12px; flex-wrap: wrap; }
+  .terreno-header:hover { background: #FAFAF8; }
+
+  .terreno-title { display: flex; align-items: center; gap: 10px; }
+  .terreno-name { font-weight: 700; font-size: 14px; }
+
+  .tag { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
+  .tag-ab { background: var(--accent-light); color: var(--accent); }
+  .tag-familia { background: var(--blue-light); color: var(--blue); }
+  .tag-permuta { background: var(--gold-light); color: var(--gold); }
+  .tag-permuta-fisica { background: #F3EBF9; color: #6B3FA0; }
+  .tag-venda { background: var(--accent-light); color: var(--accent); }
+
+  .terreno-meta { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+  .meta-item { text-align: right; }
+  .meta-item .meta-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .meta-item .meta-val { font-size: 13px; font-weight: 600; }
+  .meta-item .meta-val.green { color: var(--accent); }
+  .prop-count { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .expand-icon { color: var(--muted); font-size: 14px; transition: transform 0.2s; flex-shrink: 0; }
+  .expand-icon.open { transform: rotate(180deg); }
+
+  /* Proposals area */
+  .proposals-area { padding: 0 18px 18px; display: none; }
+  .proposals-area.open { display: block; }
+  .proposals-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 10px; }
+  .proposals-toolbar h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+  .empty-proposals { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; border: 1.5px dashed var(--border); border-radius: 6px; }
+
+  /* Proposal cards */
+  .proposal-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+  .proposal-card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #FAFAF8; flex-wrap: wrap; gap: 8px; }
+  .proposal-buyer-name { font-weight: 700; font-size: 14px; }
+  .proposal-meta-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .pmeta { text-align: right; }
+  .pmeta .pl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .pmeta .pv { font-size: 13px; font-weight: 700; }
+  .pmeta .pv.green { color: var(--accent); }
+  .pmeta .pv.blue { color: var(--blue); }
+  .pmeta .pv.warn { color: var(--warn); }
+
+  .proposal-card-body { padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media(max-width:700px){ .proposal-card-body { grid-template-columns: 1fr; } }
+
+  /* Divergence panel */
+  .divergence-panel { background: #FAFAF8; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
+  .divergence-panel h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 10px; }
+  .div-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #EDEBE6; font-size: 12px; gap: 8px; }
+  .div-row:last-child { border-bottom: none; }
+  .div-label { color: var(--muted); flex: 1; }
+  .div-alvo { color: var(--text); font-weight: 500; text-align: right; white-space: nowrap; }
+  .div-proposta { font-weight: 700; text-align: right; white-space: nowrap; }
+  .div-delta { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
+  .div-pos { background: var(--accent-light); color: var(--accent); }
+  .div-neg { background: var(--warn-light); color: var(--warn); }
+  .div-neu { background: #F0F0EE; color: var(--muted); }
+
+  .div-total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--border); }
+  .div-total-row .dt-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
+  .div-total-row .dt-val { font-size: 15px; font-weight: 700; font-family: var(--font-display); }
+
+  /* Notes & conditions */
+  .notes-panel { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .notes-panel strong { color: var(--text); }
+  .notes-panel .condition { display: flex; gap: 6px; margin-bottom: 4px; }
+  .notes-panel .condition::before { content: '·'; color: var(--muted); flex-shrink: 0; }
+
+  .status-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
+  .status-em-negociacao { background: #FFF8E6; color: #B07D00; }
+  .status-proposta-recebida { background: var(--blue-light); color: var(--blue); }
+  .status-aceita { background: var(--accent-light); color: var(--accent); }
+  .status-recusada { background: var(--warn-light); color: var(--warn); }
+  .status-standby { background: #F0F0EE; color: var(--muted); }
+
+  .card-actions { display: flex; gap: 6px; align-items: center; }
+  .btn-sm { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .btn-sm:hover { border-color: var(--text); color: var(--text); }
+  .btn-danger { background: transparent; color: var(--warn); border: none; font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 4px; }
+  .btn-danger:hover { background: var(--warn-light); }
+  .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-secondary:hover { background: var(--accent-light); }
+
+  /* Modal */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 12px; width: 100%; max-width: 560px; padding: 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+  .modal h2 { font-family: var(--font-display); font-size: 19px; font-weight: normal; margin-bottom: 4px; }
+  .modal-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 13px; font-family: var(--font-body); color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); background: white; }
+  .form-group textarea { resize: vertical; min-height: 64px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .btn-cancel { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
+
+  .warn-note { background: var(--warn-light); border: 1px solid #F5C6C2; border-radius: 5px; padding: 8px 10px; font-size: 11px; color: var(--warn); margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Tracker de Propostas — Terrenos</h1>
+    <p>André Bichucher &nbsp;·&nbsp; Atualizado em 11/06/2026</p>
+  </div>
+</header>
+
+<div class="summary-bar">
+  <div class="summary-card"><div class="label">Terrenos</div><div class="value" id="sum-terrenos">—</div></div>
+  <div class="summary-card"><div class="label">Propostas</div><div class="value blue" id="sum-propostas">—</div></div>
+  <div class="summary-card"><div class="label">Em Negociação</div><div class="value" id="sum-neg">—</div></div>
+  <div class="summary-card"><div class="label">Valor Total Alvo</div><div class="value green" id="sum-alvo">—</div></div>
+  <div class="summary-card"><div class="label">Melhor Oferta Total</div><div class="value" id="sum-melhor">—</div></div>
+</div>
+
+<div class="main" id="main-container"></div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h2 id="modal-title">Nova Proposta</h2>
+    <p class="modal-subtitle" id="modal-subtitle"></p>
+    <div id="modal-warn" class="warn-note" style="display:none"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Comprador / Empresa</label><input type="text" id="f-buyer" placeholder="Nome ou empresa"/></div>
+      <div class="form-group"><label>Data</label><input type="date" id="f-date"/></div>
+    </div>
+    <div class="form-row triple">
+      <div class="form-group"><label>Área considerada (m²)</label><input type="number" id="f-area" placeholder="ex: 9.598"/></div>
+      <div class="form-group"><label>Valor/m² ofertado (R$)</label><input type="number" id="f-vpm2" placeholder="ex: 1.851"/></div>
+      <div class="form-group"><label>Valor Bruto (R$ M)</label><input type="number" id="f-valor" placeholder="ex: 17.76" step="0.01"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Valor Líquido (R$ M)</label><input type="number" id="f-valor-liq" placeholder="após descontos" step="0.01"/></div>
+      <div class="form-group"><label>Tipo de Negócio</label>
+        <select id="f-tipo">
+          <option value="venda">Venda Direta</option>
+          <option value="permuta">Permuta Financeira</option>
+          <option value="permuta-fisica">Permuta Física</option>
+          <option value="outro">Outro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group"><label>Condições de Pagamento</label><input type="text" id="f-pagamento" placeholder="ex: Permuta financeira 12% — fluxo de recebíveis"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Status</label>
+        <select id="f-status">
+          <option value="proposta-recebida">Proposta Recebida</option>
+          <option value="em-negociacao">Em Negociação</option>
+          <option value="aceita">Aceita</option>
+          <option value="recusada">Recusada</option>
+          <option value="standby">Standby</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Validade da Proposta</label><input type="date" id="f-validade"/></div>
+    </div>
+    <div class="form-row single">
+      <div class="form-group"><label>Observações / Termos Relevantes</label><textarea id="f-notes" placeholder="Condicionantes, prazo due diligence, corretagem vendedor, etc."></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-primary" onclick="saveProposal()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TERRENOS ──────────────────────────────────────────────────────────────────
+const TERRENOS = [
+  { id: 'santos-dumont', name: 'Posto Santos Dumont', grupo: 'ab',     tamanho: 4250,  vpm2_alvo: 8000, total_alvo: 34.0,   proprietario: 'TPA' },
+  { id: 'restaurante',   name: 'Restaurante',         grupo: 'ab',     tamanho: 875,   vpm2_alvo: 8000, total_alvo: 7.0,    proprietario: 'TPA' },
+  { id: 'posto-ws',      name: 'Posto WS',             grupo: 'ab',     tamanho: 4200,  vpm2_alvo: 3000, total_alvo: 12.6,   proprietario: 'TPA' },
+  { id: 'amaralina',     name: 'Amaralina',            grupo: 'ab',     tamanho: 2813,  vpm2_alvo: 3000, total_alvo: 8.4,    proprietario: 'TPA' },
+  { id: 'quadra-2-4',    name: 'Quadra 2,4',           grupo: 'familia',tamanho: 17000, vpm2_alvo: 5000, total_alvo: 85.0,   proprietario: 'Já dividida (→ TPA)' },
+  { id: 'sitio-butanta', name: 'Sítio Butantã',        grupo: 'familia',tamanho: 64093, vpm2_alvo: 1500, total_alvo: 96.1,   proprietario: 'Novo Horizonte' },
+  { id: 'quadra-45',     name: 'Quadra 45',             grupo: 'familia',tamanho: 10000, vpm2_alvo: 2000, total_alvo: 20.0,   proprietario: 'Já dividida (→ TPA)' },
+  { id: 'quadra-99',     name: 'Quadra 99',             grupo: 'familia',tamanho: 13500, vpm2_alvo: 1500, total_alvo: 20.3,   proprietario: 'Já dividida (→ TPA)' },
+  { id: 'quadra-6',      name: 'Quadra 6',              grupo: 'familia',tamanho: 4300,  vpm2_alvo: 2000, total_alvo: 8.6,    proprietario: 'ERG Par' },
+  { id: 'gleba-8s',      name: 'Gleba 8S',              grupo: 'familia',tamanho: 82500, vpm2_alvo: 1500, total_alvo: 123.75, proprietario: 'ERG Par' },
+  { id: 'quadra-xim',    name: 'Quadra XIM',            grupo: 'familia',tamanho: 10813, vpm2_alvo: 2000, total_alvo: 21.6,   proprietario: 'ERG Par' },
+  { id: 'quadra-6pe',    name: 'Quadra 6PE',            grupo: 'familia',tamanho: 5500,  vpm2_alvo: 1000, total_alvo: 5.5,    proprietario: 'Já dividida (→ TPA)' },
+];
+
+// ── PROPOSALS (hardcoded — edit here to update) ───────────────────────────────
+let PROPOSALS = {
+  'quadra-xim': [
+    { id: 'riva_xim', buyer: 'Riva Incorporadora', date: '2026-06-10', area: 10183, vpm2: 2147, valor: 21.86, valorLiquido: 19.67, pagamento: 'Permuta financeira 12% — fluxo de recebíveis + medição de obra', tipo: 'permuta', status: 'proposta-recebida', validade: '2026-07-10', notes: '402 unidades (2q+3q suíte). Desconto 10% comercialização. Opção de compra 90 dias.' }
+  ],
+  'quadra-99': [
+    { id: 'riva_q99', buyer: 'Riva Incorporadora', date: '2026-06-10', area: 6500, vpm2: 1935, valor: 12.58, valorLiquido: 11.32, pagamento: 'Permuta financeira 10,5% — fluxo de recebíveis + medição de obra', tipo: 'permuta', status: 'proposta-recebida', validade: '2026-07-10', notes: 'Lote 2 (Dioguinho). 276 unidades (2q+3q suíte). Desconto 10% comercialização. Opção 90 dias.' }
+  ],
+  'gleba-8s': [
+    { id: 'riva_gleba', buyer: 'Riva Incorporadora', date: '2026-06-10', area: 9598, vpm2: 1851, valor: 17.76, valorLiquido: 15.98, pagamento: 'Permuta financeira 11% — fluxo de recebíveis + medição de obra', tipo: 'permuta', status: 'proposta-recebida', validade: '2026-07-10', notes: 'Quadra 5 (Aldir Mentor) — fração da gleba. 378 unidades (2q+3q suíte). Desconto 10% comercialização. Opção 90 dias.' },
+    { id: 'idibra_gleba8s', buyer: 'Construtora Duplo / Idibra', date: '2026-06-01', area: 82500, vpm2: 1200, valor: 99.0, valorLiquido: null, pagamento: 'Permuta Física 40% (unidades) — PCV 180 dias, lançamento 24+12 meses', tipo: 'permuta-fisica', status: 'em-negociacao', validade: '2026-07-01', notes: 'Área bruta 150.000m². ⚠️ Vendedor paga 2% corretagem (~R$2,0M) + comprador 3%. Via André Romcy / NUAAR.' }
+  ],
+  'quadra-45': [
+    { id: 'riva_q45', buyer: 'Riva Incorporadora', date: '2026-06-10', area: 4888, vpm2: 3177, valor: 15.52, valorLiquido: 13.97, pagamento: 'Permuta financeira 13% — fluxo de recebíveis + medição de obra', tipo: 'permuta', status: 'proposta-recebida', validade: '2026-07-10', notes: 'Lote 1 (Frente Mar). 416 unidades (1 quarto 28m²). Desconto 10% comercialização. Opção 90 dias.' }
+  ],
+  'sitio-butanta': [
+    { id: 'riva_butanta', buyer: 'Riva Incorporadora', date: '2026-06-10', area: 14822, vpm2: 3004, valor: 44.53, valorLiquido: 40.08, pagamento: 'Permuta financeira 14% — fluxo de recebíveis + medição de obra', tipo: 'permuta', status: 'proposta-recebida', validade: '2026-07-10', notes: 'Lotes 02+03 (W. Soares) — fração do Butantã. 664 unidades (2q+3q suíte). Desconto 10% comercialização. Opção 90 dias.' }
+  ],
+  'posto-ws': [
+    { id: 'riva_ws', buyer: 'Riva Incorporadora', date: '2026-06-10', area: 6000, vpm2: 2997, valor: 17.98, valorLiquido: 16.18, pagamento: 'Permuta financeira 14% — fluxo de recebíveis + medição de obra', tipo: 'permuta', status: 'proposta-recebida', validade: '2026-07-10', notes: 'WS Antares – Lote 02. 268 unidades (2q+3q suíte). Desconto 10% comercialização. ⚠️ Confirmar mapeamento para Posto WS.' }
+  ],
+};
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let openTerrenos = new Set(Object.keys(PROPOSALS));
+let activeTerreno = null;
+let editingId = null;
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+const fmtM   = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1,maximumFractionDigits:2}) + 'M' : '—';
+const fmtN   = v => v != null ? Number(v).toLocaleString('pt-BR') : '—';
+const fmtM2  = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR') + '/m²' : '—';
+const fmtDate= d => { if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
+const pctDiff= (a,b) => b ? ((a-b)/b*100).toFixed(1) : null;
+
+const TIPO_TAG = {
+  'venda':         '<span class="tag tag-venda">Venda</span>',
+  'permuta':       '<span class="tag tag-permuta">Permuta Fin.</span>',
+  'permuta-fisica':'<span class="tag tag-permuta-fisica">Permuta Fís.</span>',
+  'outro':         '<span class="tag" style="background:#F0F0EE;color:var(--muted)">Outro</span>',
+};
+
+const STATUS_LABELS = {
+  'proposta-recebida':'Proposta Recebida',
+  'em-negociacao':'Em Negociação',
+  'aceita':'Aceita',
+  'recusada':'Recusada',
+  'standby':'Standby',
+};
+
+const GRUPO_LABEL = { ab: 'Grupo AB', familia: 'Família' };
+
+function deltaTag(val, ref, invertSign) {
+  if (val == null || ref == null) return '';
+  const pct = ((val - ref) / Math.abs(ref) * 100).toFixed(1);
+  const positive = invertSign ? pct < 0 : pct >= 0;
+  const cls = Math.abs(pct) < 0.5 ? 'div-neu' : positive ? 'div-pos' : 'div-neg';
+  const sign = pct >= 0 ? '+' : '';
+  return `<span class="div-delta ${cls}">${sign}${pct}%</span>`;
+}
+
+// ── DIVERGENCE PANEL ──────────────────────────────────────────────────────────
+function buildDivergencePanel(terreno, prop) {
+  const alvoArea  = terreno.tamanho;
+  const alvoVpm2  = terreno.vpm2_alvo;
+  const alvoTotal = terreno.total_alvo;
+  const propArea  = prop.area;
+  const propVpm2  = prop.vpm2;
+  const propBruto = prop.valor;
+  const propLiq   = prop.valorLiquido;
+
+  // Reconstituted value from prop area × prop vpm2
+  const reconstituted = (propArea && propVpm2) ? (propArea * propVpm2 / 1e6) : propBruto;
+  // What the prop would be worth at alvo vpm2
+  const propAreaAtAlvo = (propArea && alvoVpm2) ? (propArea * alvoVpm2 / 1e6) : null;
+  // What alvo area at prop vpm2 would be
+  const alvoAreaAtPropVpm2 = (alvoArea && propVpm2) ? (alvoArea * propVpm2 / 1e6) : null;
+
+  const deltaArea  = (propArea && alvoArea)  ? propArea  - alvoArea  : null;
+  const deltaVpm2  = (propVpm2 && alvoVpm2)  ? propVpm2  - alvoVpm2  : null;
+  const deltaTotal = (propBruto && alvoTotal) ? propBruto - alvoTotal : null;
+  const deltaLiq   = (propLiq && alvoTotal)   ? propLiq   - alvoTotal : null;
+
+  const impactoArea  = (deltaArea  != null && alvoVpm2) ? (deltaArea  * alvoVpm2 / 1e6) : null;
+  const impactoVpm2  = (deltaVpm2  != null && propArea) ? (deltaVpm2  * propArea  / 1e6) : null;
+
+  let rows = '';
+
+  // Row: Área
+  rows += `<div class="div-row">
+    <span class="div-label">Área considerada</span>
+    <span class="div-alvo">${fmtN(alvoArea)} m²</span>
+    <span class="div-proposta" style="color:${propArea && alvoArea && propArea < alvoArea ? 'var(--warn)' : 'var(--text)'}">${propArea ? fmtN(propArea)+' m²' : '—'}</span>
+    <span>${deltaTag(propArea, alvoArea, false)}</span>
+  </div>`;
+
+  if (impactoArea != null) {
+    rows += `<div class="div-row" style="background:#FAFAF8;font-size:11px;">
+      <span class="div-label" style="padding-left:10px;color:var(--muted)">↳ impacto da diferença de área (a R$${fmtN(alvoVpm2)}/m²)</span>
+      <span></span><span></span>
+      <span class="div-delta ${impactoArea >= 0 ? 'div-pos' : 'div-neg'}">${impactoArea >= 0 ? '+' : ''}${fmtM(impactoArea)}</span>
+    </div>`;
+  }
+
+  // Row: Valor/m²
+  rows += `<div class="div-row">
+    <span class="div-label">Valor/m² ofertado</span>
+    <span class="div-alvo">${fmtM2(alvoVpm2)}</span>
+    <span class="div-proposta" style="color:${propVpm2 && alvoVpm2 && propVpm2 < alvoVpm2 ? 'var(--warn)' : 'var(--text)'}">${fmtM2(propVpm2)}</span>
+    <span>${deltaTag(propVpm2, alvoVpm2, false)}</span>
+  </div>`;
+
+  if (impactoVpm2 != null) {
+    rows += `<div class="div-row" style="background:#FAFAF8;font-size:11px;">
+      <span class="div-label" style="padding-left:10px;color:var(--muted)">↳ impacto da diferença de preço (sobre ${fmtN(propArea)} m²)</span>
+      <span></span><span></span>
+      <span class="div-delta ${impactoVpm2 >= 0 ? 'div-pos' : 'div-neg'}">${impactoVpm2 >= 0 ? '+' : ''}${fmtM(impactoVpm2)}</span>
+    </div>`;
+  }
+
+  // Row: Valor bruto
+  rows += `<div class="div-row">
+    <span class="div-label">Valor bruto ofertado</span>
+    <span class="div-alvo">${fmtM(alvoTotal)}</span>
+    <span class="div-proposta" style="color:${propBruto && alvoTotal && propBruto < alvoTotal ? 'var(--warn)' : 'var(--accent)'}">${fmtM(propBruto)}</span>
+    <span>${deltaTag(propBruto, alvoTotal, false)}</span>
+  </div>`;
+
+  // Row: Valor líquido if present
+  if (propLiq) {
+    rows += `<div class="div-row">
+      <span class="div-label">Valor líquido (após descontos)</span>
+      <span class="div-alvo">${fmtM(alvoTotal)}</span>
+      <span class="div-proposta" style="color:${propLiq < alvoTotal ? 'var(--warn)' : 'var(--accent)'}">${fmtM(propLiq)}</span>
+      <span>${deltaTag(propLiq, alvoTotal, false)}</span>
+    </div>`;
+  }
+
+  // Total delta
+  const refVal = propLiq || propBruto;
+  const totalDelta = refVal && alvoTotal ? refVal - alvoTotal : null;
+  const totalDeltaPct = totalDelta != null ? pctDiff(refVal, alvoTotal) : null;
+  const totalCls = totalDelta == null ? '' : totalDelta >= 0 ? 'color:var(--accent)' : 'color:var(--warn)';
+
+  return `
+    <div class="divergence-panel">
+      <h4>Análise de Divergências vs Alvo</h4>
+      ${rows}
+      <div class="div-total-row">
+        <span class="dt-label">Diferença total (${propLiq ? 'líquido' : 'bruto'} vs alvo)</span>
+        <span class="dt-val" style="${totalCls}">${totalDelta != null ? (totalDelta >= 0 ? '+' : '') + fmtM(totalDelta) + ` (${totalDeltaPct >= 0 ? '+' : ''}${totalDeltaPct}%)` : '—'}</span>
+      </div>
+    </div>`;
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  const container = document.getElementById('main-container');
+  container.innerHTML = '';
+
+  let totalProps = 0, totalNeg = 0, totalAlvo = 0, bestOfertas = 0;
+  const groups = {};
+  TERRENOS.forEach(t => {
+    if (!groups[t.grupo]) groups[t.grupo] = [];
+    groups[t.grupo].push(t);
+  });
+
+  for (const [grupo, terrenos] of Object.entries(groups)) {
+    const glabel = document.createElement('div');
+    glabel.className = 'group-label';
+    glabel.textContent = GRUPO_LABEL[grupo] || grupo;
+    container.appendChild(glabel);
+
+    terrenos.forEach(t => {
+      const props = PROPOSALS[t.id] || [];
+      totalProps += props.length;
+      if (props.some(p => p.status === 'em-negociacao')) totalNeg++;
+      if (t.total_alvo) totalAlvo += t.total_alvo;
+      const best = props.reduce((mx,p) => p.valor ? Math.max(mx, parseFloat(p.valor)) : mx, 0);
+      if (best) bestOfertas += best;
+
+      const isOpen = openTerrenos.has(t.id);
+      const bestProp = props.filter(p=>p.valor).sort((a,b)=>b.valor-a.valor)[0];
+
+      const block = document.createElement('div');
+      block.className = 'terreno-block';
+
+      const grupoTag = t.grupo === 'ab'
+        ? '<span class="tag tag-ab">AB</span>'
+        : '<span class="tag tag-familia">Família</span>';
+
+      block.innerHTML = `
+        <div class="terreno-header" onclick="toggleTerreno('${t.id}')">
+          <div class="terreno-title">
+            <span class="terreno-name">${t.name}</span>
+            ${grupoTag}
+            ${props.length > 0 ? `<span class="prop-count">${props.length} proposta${props.length>1?'s':''}</span>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <div class="terreno-meta">
+              <div class="meta-item"><div class="meta-label">Área</div><div class="meta-val">${t.tamanho ? fmtN(t.tamanho)+' m²' : '—'}</div></div>
+              <div class="meta-item"><div class="meta-label">Alvo/m²</div><div class="meta-val">${fmtM2(t.vpm2_alvo)}</div></div>
+              <div class="meta-item"><div class="meta-label">Total Alvo</div><div class="meta-val green">${fmtM(t.total_alvo)}</div></div>
+              ${bestProp ? `<div class="meta-item"><div class="meta-label">Melhor Oferta</div><div class="meta-val blue">${fmtM(bestProp.valor)}</div></div>` : ''}
+            </div>
+            <span class="expand-icon ${isOpen?'open':''}">▾</span>
+          </div>
+        </div>
+        <div class="proposals-area ${isOpen?'open':''}" id="area-${t.id}">
+          <div class="proposals-toolbar">
+            <h3>${props.length === 0 ? 'Nenhuma proposta' : 'Propostas recebidas'}</h3>
+            <button class="btn-secondary" onclick="openModal('${t.id}',event)">+ Nova Proposta</button>
+          </div>
+          ${props.length === 0
+            ? '<div class="empty-proposals">Nenhuma proposta cadastrada ainda.</div>'
+            : props.sort((a,b)=>(b.valor||0)-(a.valor||0)).map(p => renderProposalCard(t, p)).join('')
+          }
+        </div>`;
+      container.appendChild(block);
+    });
+  }
+
+  document.getElementById('sum-terrenos').textContent = TERRENOS.length;
+  document.getElementById('sum-propostas').textContent = totalProps;
+  document.getElementById('sum-neg').textContent = totalNeg;
+  document.getElementById('sum-alvo').textContent = 'R$ ' + totalAlvo.toFixed(1) + 'M';
+  document.getElementById('sum-melhor').textContent = bestOfertas ? 'R$ ' + bestOfertas.toFixed(1) + 'M' : '—';
+}
+
+function renderProposalCard(terreno, prop) {
+  const tipoTag = TIPO_TAG[prop.tipo] || '';
+  const statusBadge = `<span class="status-badge status-${prop.status}">${STATUS_LABELS[prop.status]||prop.status}</span>`;
+  const divPanel = buildDivergencePanel(terreno, prop);
+
+  const validadeStr = prop.validade ? fmtDate(prop.validade) : null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const valDate = prop.validade ? new Date(prop.validade) : null;
+  const expiring = valDate && (valDate - today) / 86400000 <= 7;
+  const expired  = valDate && valDate < today;
+  const validadeDisplay = validadeStr
+    ? `<span style="font-size:11px;${expired?'color:var(--warn);font-weight:700':expiring?'color:var(--gold);font-weight:700':'color:var(--muted)'}">${expired?'⚠️ Vencida':expiring?'⚠️ Vence':'Válida até'} ${validadeStr}</span>`
+    : '';
+
+  return `
+    <div class="proposal-card" id="pcard-${prop.id}">
+      <div class="proposal-card-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span class="proposal-buyer-name">${prop.buyer}</span>
+          ${tipoTag} ${statusBadge}
+          ${validadeDisplay}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="proposal-meta-row">
+            <div class="pmeta"><div class="pl">Bruto</div><div class="pv blue">${fmtM(prop.valor)}</div></div>
+            ${prop.valorLiquido ? `<div class="pmeta"><div class="pl">Líquido</div><div class="pv green">${fmtM(prop.valorLiquido)}</div></div>` : ''}
+            ${prop.vpm2 ? `<div class="pmeta"><div class="pl">R$/m²</div><div class="pv">${fmtM2(prop.vpm2)}</div></div>` : ''}
+            ${prop.area ? `<div class="pmeta"><div class="pl">Área prop.</div><div class="pv">${fmtN(prop.area)} m²</div></div>` : ''}
+          </div>
+          <div class="card-actions">
+            <button class="btn-sm" onclick="editProposal('${terreno.id}','${prop.id}',event)">Editar</button>
+            <button class="btn-danger" onclick="deleteProposal('${terreno.id}','${prop.id}',event)">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="proposal-card-body">
+        ${divPanel}
+        <div class="notes-panel">
+          ${prop.pagamento ? `<div class="condition"><strong>Pagamento:</strong> ${prop.pagamento}</div>` : ''}
+          ${prop.notes ? prop.notes.split('\n').map(l=>`<div class="condition">${l}</div>`).join('') : ''}
+          <div style="margin-top:8px;font-size:11px;color:var(--muted)">Data da proposta: ${fmtDate(prop.date)}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── INTERACTIONS ──────────────────────────────────────────────────────────────
+function toggleTerreno(id) {
+  openTerrenos.has(id) ? openTerrenos.delete(id) : openTerrenos.add(id);
+  render();
+}
+
+function openModal(tid, e) {
+  if(e) e.stopPropagation();
+  activeTerreno = tid; editingId = null;
+  const t = TERRENOS.find(x=>x.id===tid);
+  document.getElementById('modal-title').textContent = 'Nova Proposta';
+  document.getElementById('modal-subtitle').textContent = t ? t.name : '';
+  document.getElementById('modal-warn').style.display='none';
+  ['f-buyer','f-pagamento','f-notes'].forEach(id=>document.getElementById(id).value='');
+  ['f-valor','f-valor-liq','f-vpm2','f-area'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('f-validade').value = '';
+  document.getElementById('f-status').value = 'proposta-recebida';
+  document.getElementById('f-tipo').value = 'venda';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function editProposal(tid, pid, e) {
+  if(e) e.stopPropagation();
+  activeTerreno = tid; editingId = pid;
+  const prop = (PROPOSALS[tid]||[]).find(p=>p.id===pid);
+  if(!prop) return;
+  const t = TERRENOS.find(x=>x.id===tid);
+  document.getElementById('modal-title').textContent = 'Editar Proposta';
+  document.getElementById('modal-subtitle').textContent = t ? t.name : '';
+  document.getElementById('modal-warn').style.display='none';
+  document.getElementById('f-buyer').value = prop.buyer||'';
+  document.getElementById('f-date').value = prop.date||'';
+  document.getElementById('f-area').value = prop.area||'';
+  document.getElementById('f-vpm2').value = prop.vpm2||'';
+  document.getElementById('f-valor').value = prop.valor||'';
+  document.getElementById('f-valor-liq').value = prop.valorLiquido||'';
+  document.getElementById('f-pagamento').value = prop.pagamento||'';
+  document.getElementById('f-tipo').value = prop.tipo||'venda';
+  document.getElementById('f-status').value = prop.status||'proposta-recebida';
+  document.getElementById('f-validade').value = prop.validade||'';
+  document.getElementById('f-notes').value = prop.notes||'';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  activeTerreno = null; editingId = null;
+}
+
+function saveProposal() {
+  const buyer = document.getElementById('f-buyer').value.trim();
+  if(!buyer){ alert('Informe o comprador.'); return; }
+  const prop = {
+    id: editingId || 'p_'+Date.now(),
+    buyer,
+    date: document.getElementById('f-date').value,
+    area: parseFloat(document.getElementById('f-area').value)||null,
+    vpm2: parseFloat(document.getElementById('f-vpm2').value)||null,
+    valor: parseFloat(document.getElementById('f-valor').value)||null,
+    valorLiquido: parseFloat(document.getElementById('f-valor-liq').value)||null,
+    pagamento: document.getElementById('f-pagamento').value.trim(),
+    tipo: document.getElementById('f-tipo').value,
+    status: document.getElementById('f-status').value,
+    validade: document.getElementById('f-validade').value||null,
+    notes: document.getElementById('f-notes').value.trim(),
+  };
+  if(!PROPOSALS[activeTerreno]) PROPOSALS[activeTerreno]=[];
+  if(editingId) {
+    const idx = PROPOSALS[activeTerreno].findIndex(p=>p.id===editingId);
+    if(idx!==-1) PROPOSALS[activeTerreno][idx]=prop;
+  } else {
+    PROPOSALS[activeTerreno].push(prop);
+  }
+  openTerrenos.add(activeTerreno);
+  closeModal();
+  render();
+}
+
+function deleteProposal(tid, pid, e) {
+  if(e) e.stopPropagation();
+  if(!confirm('Remover esta proposta?')) return;
+  PROPOSALS[tid] = (PROPOSALS[tid]||[]).filter(p=>p.id!==pid);
+  render();
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+render();
+</script>
+</body>
+</html>
