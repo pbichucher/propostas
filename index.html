@@ -3,218 +3,107 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tracker de Propostas — Terrenos</title>
+<title>Propostas — Terrenos AB</title>
 <style>
   :root {
-    --bg: #F7F6F2;
-    --surface: #FFFFFF;
-    --border: #E2DDD6;
-    --text: #1A1814;
-    --muted: #8A857C;
-    --accent: #2A5C45;
-    --accent-light: #EAF2EE;
-    --warn: #C0392B;
-    --warn-light: #FDECEA;
-    --blue: #2B4F8C;
-    --blue-light: #EBF0F9;
-    --gold: #9A6F1E;
-    --gold-light: #FBF3E2;
-    --font-display: 'Georgia', 'Times New Roman', serif;
-    --font-body: -apple-system, 'Segoe UI', sans-serif;
+    --text: #1a1a1a;
+    --muted: #8a8a86;
+    --line: #e8e8e4;
+    --bg: #fdfdfc;
+    --accent: #1a6e4a;
+    --warn: #b0541d;
+    --hover: #f6f6f3;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); font-family: var(--font-body); color: var(--text); min-height: 100vh; padding: 32px 24px; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--text);
+    font-size: 14px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 48px 24px 80px; }
 
-  header { max-width: 1300px; margin: 0 auto 28px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .header-left h1 { font-family: var(--font-display); font-size: 26px; font-weight: normal; letter-spacing: -0.5px; }
-  .header-left p { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  header h1 { font-size: 21px; font-weight: 650; letter-spacing: -0.02em; }
+  header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
 
-  .summary-bar { max-width: 1300px; margin: 0 auto 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-  .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
-  .summary-card .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 5px; }
-  .summary-card .value { font-family: var(--font-display); font-size: 20px; }
-  .summary-card .value.green { color: var(--accent); }
-  .summary-card .value.blue { color: var(--blue); }
+  .totals { display: flex; gap: 40px; margin: 28px 0 36px; }
+  .totals div span { display: block; }
+  .totals .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .totals .val { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; margin-top: 2px; }
 
-  .main { max-width: 1300px; margin: 0 auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: right; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
+    padding: 8px 12px; border-bottom: 1px solid var(--text);
+    white-space: nowrap;
+  }
+  th:first-child { text-align: left; padding-left: 8px; }
+  td {
+    padding: 12px; text-align: right; border-bottom: 1px solid var(--line);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  td:first-child { text-align: left; padding-left: 8px; font-weight: 550; }
+  tr.terreno { cursor: pointer; }
+  tr.terreno:hover { background: var(--hover); }
+  tr.terreno .chev { color: var(--muted); font-size: 10px; display: inline-block; width: 14px; transition: transform .15s; }
+  tr.terreno.open .chev { transform: rotate(90deg); }
+  tr.empty td { color: var(--muted); font-weight: 400; }
+  tr.empty td:first-child { font-weight: 400; }
+  .sub { display: block; font-size: 11.5px; color: var(--muted); font-weight: 400; }
+  .delta-pos { color: var(--accent); }
+  .delta-neg { color: var(--warn); }
+  .muted { color: var(--muted); }
 
-  /* Group headers */
-  .group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 24px 0 8px 4px; }
+  /* detalhe expandido */
+  tr.detail > td { padding: 0 0 8px 0; background: #fafaf8; border-bottom: 1px solid var(--line); white-space: normal; }
+  .prop {
+    padding: 18px 20px 16px 34px; text-align: left;
+  }
+  .prop + .prop { border-top: 1px dashed var(--line); }
+  .prop-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .prop-head .buyer { font-weight: 600; font-size: 14px; }
+  .badge {
+    font-size: 11px; color: var(--muted); background: #efefeb;
+    padding: 1px 8px; border-radius: 99px; font-weight: 500;
+  }
+  .badge.status { background: #e7f0eb; color: var(--accent); }
+  .prop-head .when { font-size: 12px; color: var(--muted); margin-left: auto; }
 
-  .terreno-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .cmp { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; max-width: 720px; }
+  .cmp > div { flex: 1; padding: 12px 16px; }
+  .cmp > div + div { border-left: 1px solid var(--line); }
+  .cmp .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
+  .cmp .row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; padding: 1px 0; }
+  .cmp .row b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cmp .d { font-size: 12px; margin-top: 4px; font-weight: 600; }
 
-  .terreno-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; user-select: none; gap: 12px; flex-wrap: wrap; }
-  .terreno-header:hover { background: #FAFAF8; }
+  .partial-note { font-size: 12px; color: var(--warn); margin: 10px 0 0; }
+  .prop-notes { font-size: 12.5px; color: var(--muted); margin-top: 10px; max-width: 720px; }
+  .prop-notes b { color: var(--text); font-weight: 550; }
 
-  .terreno-title { display: flex; align-items: center; gap: 10px; }
-  .terreno-name { font-weight: 700; font-size: 14px; }
+  .section-gap { height: 28px; }
+  .empty-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 26px 0 6px 8px; }
 
-  .tag { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; }
-  .tag-ab { background: var(--accent-light); color: var(--accent); }
-  .tag-familia { background: var(--blue-light); color: var(--blue); }
-  .tag-permuta { background: var(--gold-light); color: var(--gold); }
-  .tag-permuta-fisica { background: #F3EBF9; color: #6B3FA0; }
-  .tag-venda { background: var(--accent-light); color: var(--accent); }
-
-  .terreno-meta { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
-  .meta-item { text-align: right; }
-  .meta-item .meta-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
-  .meta-item .meta-val { font-size: 13px; font-weight: 600; }
-  .meta-item .meta-val.green { color: var(--accent); }
-  .prop-count { font-size: 11px; color: var(--muted); font-weight: 600; }
-  .expand-icon { color: var(--muted); font-size: 14px; transition: transform 0.2s; flex-shrink: 0; }
-  .expand-icon.open { transform: rotate(180deg); }
-
-  /* Proposals area */
-  .proposals-area { padding: 0 18px 18px; display: none; }
-  .proposals-area.open { display: block; }
-  .proposals-toolbar { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 10px; }
-  .proposals-toolbar h3 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
-  .empty-proposals { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; border: 1.5px dashed var(--border); border-radius: 6px; }
-
-  /* Proposal cards */
-  .proposal-card { border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
-  .proposal-card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #FAFAF8; flex-wrap: wrap; gap: 8px; }
-  .proposal-buyer-name { font-weight: 700; font-size: 14px; }
-  .proposal-meta-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-  .pmeta { text-align: right; }
-  .pmeta .pl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
-  .pmeta .pv { font-size: 13px; font-weight: 700; }
-  .pmeta .pv.green { color: var(--accent); }
-  .pmeta .pv.blue { color: var(--blue); }
-  .pmeta .pv.warn { color: var(--warn); }
-
-  .proposal-card-body { padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media(max-width:700px){ .proposal-card-body { grid-template-columns: 1fr; } }
-
-  /* Divergence panel */
-  .divergence-panel { background: #FAFAF8; border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; }
-  .divergence-panel h4 { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 10px; }
-  .div-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #EDEBE6; font-size: 12px; gap: 8px; }
-  .div-row:last-child { border-bottom: none; }
-  .div-label { color: var(--muted); flex: 1; }
-  .div-alvo { color: var(--text); font-weight: 500; text-align: right; white-space: nowrap; }
-  .div-proposta { font-weight: 700; text-align: right; white-space: nowrap; }
-  .div-delta { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 3px; white-space: nowrap; }
-  .div-pos { background: var(--accent-light); color: var(--accent); }
-  .div-neg { background: var(--warn-light); color: var(--warn); }
-  .div-neu { background: #F0F0EE; color: var(--muted); }
-
-  .div-total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 2px solid var(--border); }
-  .div-total-row .dt-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); }
-  .div-total-row .dt-val { font-size: 15px; font-weight: 700; font-family: var(--font-display); }
-
-  /* Notes & conditions */
-  .notes-panel { font-size: 12px; color: var(--muted); line-height: 1.6; }
-  .notes-panel strong { color: var(--text); }
-  .notes-panel .condition { display: flex; gap: 6px; margin-bottom: 4px; }
-  .notes-panel .condition::before { content: '·'; color: var(--muted); flex-shrink: 0; }
-
-  .status-badge { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; }
-  .status-em-negociacao { background: #FFF8E6; color: #B07D00; }
-  .status-proposta-recebida { background: var(--blue-light); color: var(--blue); }
-  .status-aceita { background: var(--accent-light); color: var(--accent); }
-  .status-recusada { background: var(--warn-light); color: var(--warn); }
-  .status-standby { background: #F0F0EE; color: var(--muted); }
-
-  .card-actions { display: flex; gap: 6px; align-items: center; }
-  .btn-sm { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
-  .btn-sm:hover { border-color: var(--text); color: var(--text); }
-  .btn-danger { background: transparent; color: var(--warn); border: none; font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 4px; }
-  .btn-danger:hover { background: var(--warn-light); }
-  .btn-primary { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .btn-primary:hover { opacity: 0.85; }
-  .btn-secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); padding: 7px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-  .btn-secondary:hover { background: var(--accent-light); }
-
-  /* Modal */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 24px; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: 12px; width: 100%; max-width: 560px; padding: 26px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
-  .modal h2 { font-family: var(--font-display); font-size: 19px; font-weight: normal; margin-bottom: 4px; }
-  .modal-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .form-row.single { grid-template-columns: 1fr; }
-  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
-  .form-group label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 4px; }
-  .form-group input, .form-group select, .form-group textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 13px; font-family: var(--font-body); color: var(--text); background: var(--bg); outline: none; transition: border-color 0.15s; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); background: white; }
-  .form-group textarea { resize: vertical; min-height: 64px; }
-  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
-  .btn-cancel { background: transparent; border: 1.5px solid var(--border); color: var(--muted); padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
-  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
-
-  .warn-note { background: var(--warn-light); border: 1px solid #F5C6C2; border-radius: 5px; padding: 8px 10px; font-size: 11px; color: var(--warn); margin-bottom: 12px; }
+  @media (max-width: 720px) {
+    .wrap { padding: 28px 12px 60px; }
+    .hide-sm { display: none; }
+    .cmp { flex-direction: column; }
+    .cmp > div + div { border-left: none; border-top: 1px solid var(--line); }
+    .totals { gap: 24px; flex-wrap: wrap; }
+  }
 </style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <h1>Propostas — Terrenos AB</h1>
+    <p>André Bichucher · Atualizado em 11/06/2026</p>
+  </header>
 
-<header>
-  <div class="header-left">
-    <h1>Tracker de Propostas — Terrenos</h1>
-    <p>André Bichucher &nbsp;·&nbsp; Atualizado em 11/06/2026</p>
-  </div>
-</header>
+  <div class="totals" id="totals"></div>
 
-<div class="summary-bar">
-  <div class="summary-card"><div class="label">Terrenos</div><div class="value" id="sum-terrenos">—</div></div>
-  <div class="summary-card"><div class="label">Propostas</div><div class="value blue" id="sum-propostas">—</div></div>
-  <div class="summary-card"><div class="label">Em Negociação</div><div class="value" id="sum-neg">—</div></div>
-  <div class="summary-card"><div class="label">Valor Total Alvo</div><div class="value green" id="sum-alvo">—</div></div>
-  <div class="summary-card"><div class="label">Melhor Oferta Total</div><div class="value" id="sum-melhor">—</div></div>
-</div>
-
-<div class="main" id="main-container"></div>
-
-<!-- Modal -->
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal">
-    <h2 id="modal-title">Nova Proposta</h2>
-    <p class="modal-subtitle" id="modal-subtitle"></p>
-    <div id="modal-warn" class="warn-note" style="display:none"></div>
-    <div class="form-row">
-      <div class="form-group"><label>Comprador / Empresa</label><input type="text" id="f-buyer" placeholder="Nome ou empresa"/></div>
-      <div class="form-group"><label>Data</label><input type="date" id="f-date"/></div>
-    </div>
-    <div class="form-row triple">
-      <div class="form-group"><label>Área considerada (m²)</label><input type="number" id="f-area" placeholder="ex: 9.598"/></div>
-      <div class="form-group"><label>Valor/m² ofertado (R$)</label><input type="number" id="f-vpm2" placeholder="ex: 1.851"/></div>
-      <div class="form-group"><label>Valor Bruto (R$ M)</label><input type="number" id="f-valor" placeholder="ex: 17.76" step="0.01"/></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Valor Líquido (R$ M)</label><input type="number" id="f-valor-liq" placeholder="após descontos" step="0.01"/></div>
-      <div class="form-group"><label>Tipo de Negócio</label>
-        <select id="f-tipo">
-          <option value="venda">Venda Direta</option>
-          <option value="permuta">Permuta Financeira</option>
-          <option value="permuta-fisica">Permuta Física</option>
-          <option value="outro">Outro</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-row single">
-      <div class="form-group"><label>Condições de Pagamento</label><input type="text" id="f-pagamento" placeholder="ex: Permuta financeira 12% — fluxo de recebíveis"/></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>Status</label>
-        <select id="f-status">
-          <option value="proposta-recebida">Proposta Recebida</option>
-          <option value="em-negociacao">Em Negociação</option>
-          <option value="aceita">Aceita</option>
-          <option value="recusada">Recusada</option>
-          <option value="standby">Standby</option>
-        </select>
-      </div>
-      <div class="form-group"><label>Validade da Proposta</label><input type="date" id="f-validade"/></div>
-    </div>
-    <div class="form-row single">
-      <div class="form-group"><label>Observações / Termos Relevantes</label><textarea id="f-notes" placeholder="Condicionantes, prazo due diligence, corretagem vendedor, etc."></textarea></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
-      <button class="btn-primary" onclick="saveProposal()">Salvar</button>
-    </div>
-  </div>
+  <table id="tbl"></table>
 </div>
 
 <script>
@@ -255,346 +144,150 @@ let PROPOSALS = {
   ],
 };
 
-// ── STATE ─────────────────────────────────────────────────────────────────────
-let openTerrenos = new Set(Object.keys(PROPOSALS));
-let activeTerreno = null;
-let editingId = null;
-
-// ── UTILS ─────────────────────────────────────────────────────────────────────
-const fmtM   = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1,maximumFractionDigits:2}) + 'M' : '—';
-const fmtN   = v => v != null ? Number(v).toLocaleString('pt-BR') : '—';
-const fmtM2  = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR') + '/m²' : '—';
-const fmtDate= d => { if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
-const pctDiff= (a,b) => b ? ((a-b)/b*100).toFixed(1) : null;
-
-const TIPO_TAG = {
-  'venda':         '<span class="tag tag-venda">Venda</span>',
-  'permuta':       '<span class="tag tag-permuta">Permuta Fin.</span>',
-  'permuta-fisica':'<span class="tag tag-permuta-fisica">Permuta Fís.</span>',
-  'outro':         '<span class="tag" style="background:#F0F0EE;color:var(--muted)">Outro</span>',
-};
-
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 const STATUS_LABELS = {
-  'proposta-recebida':'Proposta Recebida',
-  'em-negociacao':'Em Negociação',
-  'aceita':'Aceita',
-  'recusada':'Recusada',
-  'standby':'Standby',
+  'proposta-recebida': 'Proposta recebida',
+  'em-negociacao': 'Em negociação',
+  'aceita': 'Aceita',
+  'recusada': 'Recusada',
+  'standby': 'Standby',
 };
+const TIPO_LABELS = {
+  'venda': 'Venda',
+  'permuta': 'Permuta financeira',
+  'permuta-fisica': 'Permuta física',
+  'outro': 'Outro',
+};
+const fmtN  = v => v != null ? Number(v).toLocaleString('pt-BR') : '—';
+const fmtM  = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' M' : '—';
+const fmtM2 = v => v != null ? 'R$ ' + Math.round(v).toLocaleString('pt-BR') : '—';
+const fmtDate = d => { if (!d) return '—'; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
+const pct = (a, b) => (b ? ((a - b) / b * 100) : null);
+const pctTag = (a, b) => {
+  const p = pct(a, b);
+  if (p == null) return '';
+  const cls = p >= 0 ? 'delta-pos' : 'delta-neg';
+  return `<span class="${cls}">${p >= 0 ? '+' : ''}${p.toFixed(0)}%</span>`;
+};
+// proposta líquida "efetiva": líquido se existir, senão bruto
+const liq = p => p.valorLiquido != null ? p.valorLiquido : p.valor;
+// melhor proposta do terreno = maior R$/m² (comparável mesmo com áreas parciais)
+const bestProp = props => props.slice().sort((a, b) => (b.vpm2 || 0) - (a.vpm2 || 0))[0];
 
-const GRUPO_LABEL = { ab: 'Grupo AB', familia: 'Família' };
-
-function deltaTag(val, ref, invertSign) {
-  if (val == null || ref == null) return '';
-  const pct = ((val - ref) / Math.abs(ref) * 100).toFixed(1);
-  const positive = invertSign ? pct < 0 : pct >= 0;
-  const cls = Math.abs(pct) < 0.5 ? 'div-neu' : positive ? 'div-pos' : 'div-neg';
-  const sign = pct >= 0 ? '+' : '';
-  return `<span class="div-delta ${cls}">${sign}${pct}%</span>`;
-}
-
-// ── DIVERGENCE PANEL ──────────────────────────────────────────────────────────
-function buildDivergencePanel(terreno, prop) {
-  const alvoArea  = terreno.tamanho;
-  const alvoVpm2  = terreno.vpm2_alvo;
-  const alvoTotal = terreno.total_alvo;
-  const propArea  = prop.area;
-  const propVpm2  = prop.vpm2;
-  const propBruto = prop.valor;
-  const propLiq   = prop.valorLiquido;
-
-  // Reconstituted value from prop area × prop vpm2
-  const reconstituted = (propArea && propVpm2) ? (propArea * propVpm2 / 1e6) : propBruto;
-  // What the prop would be worth at alvo vpm2
-  const propAreaAtAlvo = (propArea && alvoVpm2) ? (propArea * alvoVpm2 / 1e6) : null;
-  // What alvo area at prop vpm2 would be
-  const alvoAreaAtPropVpm2 = (alvoArea && propVpm2) ? (alvoArea * propVpm2 / 1e6) : null;
-
-  const deltaArea  = (propArea && alvoArea)  ? propArea  - alvoArea  : null;
-  const deltaVpm2  = (propVpm2 && alvoVpm2)  ? propVpm2  - alvoVpm2  : null;
-  const deltaTotal = (propBruto && alvoTotal) ? propBruto - alvoTotal : null;
-  const deltaLiq   = (propLiq && alvoTotal)   ? propLiq   - alvoTotal : null;
-
-  const impactoArea  = (deltaArea  != null && alvoVpm2) ? (deltaArea  * alvoVpm2 / 1e6) : null;
-  const impactoVpm2  = (deltaVpm2  != null && propArea) ? (deltaVpm2  * propArea  / 1e6) : null;
-
-  let rows = '';
-
-  // Row: Área
-  rows += `<div class="div-row">
-    <span class="div-label">Área considerada</span>
-    <span class="div-alvo">${fmtN(alvoArea)} m²</span>
-    <span class="div-proposta" style="color:${propArea && alvoArea && propArea < alvoArea ? 'var(--warn)' : 'var(--text)'}">${propArea ? fmtN(propArea)+' m²' : '—'}</span>
-    <span>${deltaTag(propArea, alvoArea, false)}</span>
-  </div>`;
-
-  if (impactoArea != null) {
-    rows += `<div class="div-row" style="background:#FAFAF8;font-size:11px;">
-      <span class="div-label" style="padding-left:10px;color:var(--muted)">↳ impacto da diferença de área (a R$${fmtN(alvoVpm2)}/m²)</span>
-      <span></span><span></span>
-      <span class="div-delta ${impactoArea >= 0 ? 'div-pos' : 'div-neg'}">${impactoArea >= 0 ? '+' : ''}${fmtM(impactoArea)}</span>
-    </div>`;
-  }
-
-  // Row: Valor/m²
-  rows += `<div class="div-row">
-    <span class="div-label">Valor/m² ofertado</span>
-    <span class="div-alvo">${fmtM2(alvoVpm2)}</span>
-    <span class="div-proposta" style="color:${propVpm2 && alvoVpm2 && propVpm2 < alvoVpm2 ? 'var(--warn)' : 'var(--text)'}">${fmtM2(propVpm2)}</span>
-    <span>${deltaTag(propVpm2, alvoVpm2, false)}</span>
-  </div>`;
-
-  if (impactoVpm2 != null) {
-    rows += `<div class="div-row" style="background:#FAFAF8;font-size:11px;">
-      <span class="div-label" style="padding-left:10px;color:var(--muted)">↳ impacto da diferença de preço (sobre ${fmtN(propArea)} m²)</span>
-      <span></span><span></span>
-      <span class="div-delta ${impactoVpm2 >= 0 ? 'div-pos' : 'div-neg'}">${impactoVpm2 >= 0 ? '+' : ''}${fmtM(impactoVpm2)}</span>
-    </div>`;
-  }
-
-  // Row: Valor bruto
-  rows += `<div class="div-row">
-    <span class="div-label">Valor bruto ofertado</span>
-    <span class="div-alvo">${fmtM(alvoTotal)}</span>
-    <span class="div-proposta" style="color:${propBruto && alvoTotal && propBruto < alvoTotal ? 'var(--warn)' : 'var(--accent)'}">${fmtM(propBruto)}</span>
-    <span>${deltaTag(propBruto, alvoTotal, false)}</span>
-  </div>`;
-
-  // Row: Valor líquido if present
-  if (propLiq) {
-    rows += `<div class="div-row">
-      <span class="div-label">Valor líquido (após descontos)</span>
-      <span class="div-alvo">${fmtM(alvoTotal)}</span>
-      <span class="div-proposta" style="color:${propLiq < alvoTotal ? 'var(--warn)' : 'var(--accent)'}">${fmtM(propLiq)}</span>
-      <span>${deltaTag(propLiq, alvoTotal, false)}</span>
-    </div>`;
-  }
-
-  // Total delta
-  const refVal = propLiq || propBruto;
-  const totalDelta = refVal && alvoTotal ? refVal - alvoTotal : null;
-  const totalDeltaPct = totalDelta != null ? pctDiff(refVal, alvoTotal) : null;
-  const totalCls = totalDelta == null ? '' : totalDelta >= 0 ? 'color:var(--accent)' : 'color:var(--warn)';
-
-  return `
-    <div class="divergence-panel">
-      <h4>Análise de Divergências vs Alvo</h4>
-      ${rows}
-      <div class="div-total-row">
-        <span class="dt-label">Diferença total (${propLiq ? 'líquido' : 'bruto'} vs alvo)</span>
-        <span class="dt-val" style="${totalCls}">${totalDelta != null ? (totalDelta >= 0 ? '+' : '') + fmtM(totalDelta) + ` (${totalDeltaPct >= 0 ? '+' : ''}${totalDeltaPct}%)` : '—'}</span>
-      </div>
-    </div>`;
-}
+let openTerrenos = new Set(Object.keys(PROPOSALS));
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
+function renderTotals() {
+  const withProps = TERRENOS.filter(t => (PROPOSALS[t.id] || []).length);
+  const nProps = Object.values(PROPOSALS).reduce((s, a) => s + a.length, 0);
+  const pedidoTotal = TERRENOS.reduce((s, t) => s + t.total_alvo, 0);
+  const ofertaLiq = withProps.reduce((s, t) => s + liq(bestProp(PROPOSALS[t.id])), 0);
+  document.getElementById('totals').innerHTML = `
+    <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
+    <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
+    <div><span class="lbl">Pedido total (portfólio)</span><span class="val">${fmtM(pedidoTotal)}</span></div>
+    <div><span class="lbl">Melhores ofertas (líq.)</span><span class="val">${fmtM(ofertaLiq)}</span></div>`;
+}
+
+function renderPropDetail(t, p) {
+  const isPartial = p.area != null && t.tamanho != null && p.area < t.tamanho * 0.97;
+  const areaPct = p.area && t.tamanho ? Math.round(p.area / t.tamanho * 100) : null;
+  const pedidoProp = p.area ? p.area * t.vpm2_alvo / 1e6 : t.total_alvo; // pedido para a área considerada
+
+  return `<div class="prop">
+    <div class="prop-head">
+      <span class="buyer">${p.buyer}</span>
+      ${p.lote ? `<span class="badge">${p.lote}</span>` : ''}
+      <span class="badge">${TIPO_LABELS[p.tipo] || p.tipo}</span>
+      <span class="badge status">${STATUS_LABELS[p.status] || p.status}</span>
+      <span class="when">${fmtDate(p.date)} · válida até ${fmtDate(p.validade)}</span>
+    </div>
+
+    <div class="cmp">
+      <div>
+        <div class="lbl">Área</div>
+        <div class="row"><span class="muted">Terreno</span><b>${fmtN(t.tamanho)} m²</b></div>
+        <div class="row"><span class="muted">Considerada</span><b>${fmtN(p.area)} m²</b></div>
+        ${areaPct != null && areaPct < 100 ? `<div class="d delta-neg">cobre ${areaPct}% do terreno</div>` : areaPct != null ? `<div class="d delta-pos">terreno inteiro</div>` : ''}
+      </div>
+      <div>
+        <div class="lbl">R$ / m²</div>
+        <div class="row"><span class="muted">Pedido</span><b>${fmtM2(t.vpm2_alvo)}</b></div>
+        <div class="row"><span class="muted">Oferecido</span><b>${fmtM2(p.vpm2)}</b></div>
+        <div class="d">${pctTag(p.vpm2, t.vpm2_alvo)} <span class="muted" style="font-weight:400">vs pedido</span></div>
+      </div>
+      <div>
+        <div class="lbl">Valor${isPartial ? ' (p/ a área considerada)' : ''}</div>
+        <div class="row"><span class="muted">Pedido</span><b>${fmtM(pedidoProp)}</b></div>
+        <div class="row"><span class="muted">Oferecido líq.</span><b>${fmtM(liq(p))}</b></div>
+        <div class="d">${pctTag(liq(p), pedidoProp)} <span class="muted" style="font-weight:400">${p.valorLiquido != null ? `· bruto ${fmtM(p.valor)}` : ''}</span></div>
+      </div>
+    </div>
+
+    ${isPartial ? `<p class="partial-note">Proposta parcial — não cobre o terreno inteiro. Comparação de valor feita sobre os ${fmtN(p.area)} m² considerados.</p>` : ''}
+    <p class="prop-notes"><b>Pagamento:</b> ${p.pagamento || '—'}${p.notes ? `<br>${p.notes}` : ''}</p>
+  </div>`;
+}
+
 function render() {
-  const container = document.getElementById('main-container');
-  container.innerHTML = '';
+  renderTotals();
+  const withProps = TERRENOS.filter(t => (PROPOSALS[t.id] || []).length);
+  const without = TERRENOS.filter(t => !(PROPOSALS[t.id] || []).length);
 
-  let totalProps = 0, totalNeg = 0, totalAlvo = 0, bestOfertas = 0;
-  const groups = {};
-  TERRENOS.forEach(t => {
-    if (!groups[t.grupo]) groups[t.grupo] = [];
-    groups[t.grupo].push(t);
-  });
+  let html = `<thead><tr>
+    <th>Terreno</th>
+    <th>Área</th>
+    <th class="hide-sm">Pedido R$/m²</th>
+    <th>Pedido</th>
+    <th>Melhor oferta líq.</th>
+    <th class="hide-sm">Oferta R$/m²</th>
+    <th>Δ R$/m²</th>
+  </tr></thead><tbody>`;
 
-  for (const [grupo, terrenos] of Object.entries(groups)) {
-    const glabel = document.createElement('div');
-    glabel.className = 'group-label';
-    glabel.textContent = GRUPO_LABEL[grupo] || grupo;
-    container.appendChild(glabel);
-
-    terrenos.forEach(t => {
-      const props = PROPOSALS[t.id] || [];
-      totalProps += props.length;
-      if (props.some(p => p.status === 'em-negociacao')) totalNeg++;
-      if (t.total_alvo) totalAlvo += t.total_alvo;
-      const best = props.reduce((mx,p) => p.valor ? Math.max(mx, parseFloat(p.valor)) : mx, 0);
-      if (best) bestOfertas += best;
-
-      const isOpen = openTerrenos.has(t.id);
-      const bestProp = props.filter(p=>p.valor).sort((a,b)=>b.valor-a.valor)[0];
-
-      const block = document.createElement('div');
-      block.className = 'terreno-block';
-
-      const grupoTag = t.grupo === 'ab'
-        ? '<span class="tag tag-ab">AB</span>'
-        : '<span class="tag tag-familia">Família</span>';
-
-      block.innerHTML = `
-        <div class="terreno-header" onclick="toggleTerreno('${t.id}')">
-          <div class="terreno-title">
-            <span class="terreno-name">${t.name}</span>
-            ${grupoTag}
-            ${props.length > 0 ? `<span class="prop-count">${props.length} proposta${props.length>1?'s':''}</span>` : ''}
-          </div>
-          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-            <div class="terreno-meta">
-              <div class="meta-item"><div class="meta-label">Área</div><div class="meta-val">${t.tamanho ? fmtN(t.tamanho)+' m²' : '—'}</div></div>
-              <div class="meta-item"><div class="meta-label">Alvo/m²</div><div class="meta-val">${fmtM2(t.vpm2_alvo)}</div></div>
-              <div class="meta-item"><div class="meta-label">Total Alvo</div><div class="meta-val green">${fmtM(t.total_alvo)}</div></div>
-              ${bestProp ? `<div class="meta-item"><div class="meta-label">Melhor Oferta</div><div class="meta-val blue">${fmtM(bestProp.valor)}</div></div>` : ''}
-            </div>
-            <span class="expand-icon ${isOpen?'open':''}">▾</span>
-          </div>
-        </div>
-        <div class="proposals-area ${isOpen?'open':''}" id="area-${t.id}">
-          <div class="proposals-toolbar">
-            <h3>${props.length === 0 ? 'Nenhuma proposta' : 'Propostas recebidas'}</h3>
-            <button class="btn-secondary" onclick="openModal('${t.id}',event)">+ Nova Proposta</button>
-          </div>
-          ${props.length === 0
-            ? '<div class="empty-proposals">Nenhuma proposta cadastrada ainda.</div>'
-            : props.sort((a,b)=>(b.valor||0)-(a.valor||0)).map(p => renderProposalCard(t, p)).join('')
-          }
-        </div>`;
-      container.appendChild(block);
-    });
+  for (const t of withProps) {
+    const props = PROPOSALS[t.id];
+    const best = bestProp(props);
+    const isOpen = openTerrenos.has(t.id);
+    const partial = best.area && best.area < t.tamanho * 0.97;
+    html += `<tr class="terreno ${isOpen ? 'open' : ''}" onclick="toggle('${t.id}')">
+      <td><span class="chev">▶</span>${t.name}<span class="sub" style="padding-left:14px">${props.length} proposta${props.length > 1 ? 's' : ''}${props.length > 1 ? '' : ' — ' + best.buyer}</span></td>
+      <td>${fmtN(t.tamanho)} m²</td>
+      <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
+      <td>${fmtM(t.total_alvo)}</td>
+      <td><b>${fmtM(liq(best))}</b>${partial ? `<span class="sub">p/ ${fmtN(best.area)} m²</span>` : ''}</td>
+      <td class="hide-sm">${fmtM2(best.vpm2)}</td>
+      <td>${pctTag(best.vpm2, t.vpm2_alvo)}</td>
+    </tr>`;
+    if (isOpen) {
+      html += `<tr class="detail"><td colspan="7">${props.map(p => renderPropDetail(t, p)).join('')}</td></tr>`;
+    }
   }
 
-  document.getElementById('sum-terrenos').textContent = TERRENOS.length;
-  document.getElementById('sum-propostas').textContent = totalProps;
-  document.getElementById('sum-neg').textContent = totalNeg;
-  document.getElementById('sum-alvo').textContent = 'R$ ' + totalAlvo.toFixed(1) + 'M';
-  document.getElementById('sum-melhor').textContent = bestOfertas ? 'R$ ' + bestOfertas.toFixed(1) + 'M' : '—';
+  html += `</tbody>`;
+  document.getElementById('tbl').innerHTML = html;
+
+  // terrenos sem proposta
+  if (without.length) {
+    let extra = `<tbody>`;
+    extra += `<tr><td colspan="7" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
+    for (const t of without) {
+      extra += `<tr class="empty">
+        <td style="padding-left:22px">${t.name}</td>
+        <td>${fmtN(t.tamanho)} m²</td>
+        <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
+        <td>${fmtM(t.total_alvo)}</td>
+        <td>—</td><td class="hide-sm">—</td><td>—</td>
+      </tr>`;
+    }
+    extra += `</tbody>`;
+    document.getElementById('tbl').innerHTML += extra;
+  }
 }
 
-function renderProposalCard(terreno, prop) {
-  const tipoTag = TIPO_TAG[prop.tipo] || '';
-  const statusBadge = `<span class="status-badge status-${prop.status}">${STATUS_LABELS[prop.status]||prop.status}</span>`;
-  const divPanel = buildDivergencePanel(terreno, prop);
-
-  const validadeStr = prop.validade ? fmtDate(prop.validade) : null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const valDate = prop.validade ? new Date(prop.validade) : null;
-  const expiring = valDate && (valDate - today) / 86400000 <= 7;
-  const expired  = valDate && valDate < today;
-  const validadeDisplay = validadeStr
-    ? `<span style="font-size:11px;${expired?'color:var(--warn);font-weight:700':expiring?'color:var(--gold);font-weight:700':'color:var(--muted)'}">${expired?'⚠️ Vencida':expiring?'⚠️ Vence':'Válida até'} ${validadeStr}</span>`
-    : '';
-
-  return `
-    <div class="proposal-card" id="pcard-${prop.id}">
-      <div class="proposal-card-header">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span class="proposal-buyer-name">${prop.buyer}</span>
-          ${prop.lote ? `<span style="font-size:11px;color:var(--muted);font-weight:600;background:#F0F0EE;padding:2px 7px;border-radius:4px;">${prop.lote}</span>` : ''}
-          ${tipoTag} ${statusBadge}
-          ${validadeDisplay}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="proposal-meta-row">
-            <div class="pmeta"><div class="pl">Bruto</div><div class="pv blue">${fmtM(prop.valor)}</div></div>
-            ${prop.valorLiquido ? `<div class="pmeta"><div class="pl">Líquido</div><div class="pv green">${fmtM(prop.valorLiquido)}</div></div>` : ''}
-            ${prop.vpm2 ? `<div class="pmeta"><div class="pl">R$/m²</div><div class="pv">${fmtM2(prop.vpm2)}</div></div>` : ''}
-            ${prop.area ? `<div class="pmeta"><div class="pl">Área prop.</div><div class="pv">${fmtN(prop.area)} m²</div></div>` : ''}
-          </div>
-          <div class="card-actions">
-            <button class="btn-sm" onclick="editProposal('${terreno.id}','${prop.id}',event)">Editar</button>
-            <button class="btn-danger" onclick="deleteProposal('${terreno.id}','${prop.id}',event)">✕</button>
-          </div>
-        </div>
-      </div>
-      <div class="proposal-card-body">
-        ${divPanel}
-        <div class="notes-panel">
-          ${prop.pagamento ? `<div class="condition"><strong>Pagamento:</strong> ${prop.pagamento}</div>` : ''}
-          ${prop.notes ? prop.notes.split('\n').map(l=>`<div class="condition">${l}</div>`).join('') : ''}
-          <div style="margin-top:8px;font-size:11px;color:var(--muted)">Data da proposta: ${fmtDate(prop.date)}</div>
-        </div>
-      </div>
-    </div>`;
-}
-
-// ── INTERACTIONS ──────────────────────────────────────────────────────────────
-function toggleTerreno(id) {
+function toggle(id) {
   openTerrenos.has(id) ? openTerrenos.delete(id) : openTerrenos.add(id);
   render();
 }
-
-function openModal(tid, e) {
-  if(e) e.stopPropagation();
-  activeTerreno = tid; editingId = null;
-  const t = TERRENOS.find(x=>x.id===tid);
-  document.getElementById('modal-title').textContent = 'Nova Proposta';
-  document.getElementById('modal-subtitle').textContent = t ? t.name : '';
-  document.getElementById('modal-warn').style.display='none';
-  ['f-buyer','f-pagamento','f-notes'].forEach(id=>document.getElementById(id).value='');
-  ['f-valor','f-valor-liq','f-vpm2','f-area'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('f-validade').value = '';
-  document.getElementById('f-status').value = 'proposta-recebida';
-  document.getElementById('f-tipo').value = 'venda';
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function editProposal(tid, pid, e) {
-  if(e) e.stopPropagation();
-  activeTerreno = tid; editingId = pid;
-  const prop = (PROPOSALS[tid]||[]).find(p=>p.id===pid);
-  if(!prop) return;
-  const t = TERRENOS.find(x=>x.id===tid);
-  document.getElementById('modal-title').textContent = 'Editar Proposta';
-  document.getElementById('modal-subtitle').textContent = t ? t.name : '';
-  document.getElementById('modal-warn').style.display='none';
-  document.getElementById('f-buyer').value = prop.buyer||'';
-  document.getElementById('f-date').value = prop.date||'';
-  document.getElementById('f-area').value = prop.area||'';
-  document.getElementById('f-vpm2').value = prop.vpm2||'';
-  document.getElementById('f-valor').value = prop.valor||'';
-  document.getElementById('f-valor-liq').value = prop.valorLiquido||'';
-  document.getElementById('f-pagamento').value = prop.pagamento||'';
-  document.getElementById('f-tipo').value = prop.tipo||'venda';
-  document.getElementById('f-status').value = prop.status||'proposta-recebida';
-  document.getElementById('f-validade').value = prop.validade||'';
-  document.getElementById('f-notes').value = prop.notes||'';
-  document.getElementById('modal-overlay').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-  activeTerreno = null; editingId = null;
-}
-
-function saveProposal() {
-  const buyer = document.getElementById('f-buyer').value.trim();
-  if(!buyer){ alert('Informe o comprador.'); return; }
-  const prop = {
-    id: editingId || 'p_'+Date.now(),
-    buyer,
-    date: document.getElementById('f-date').value,
-    area: parseFloat(document.getElementById('f-area').value)||null,
-    vpm2: parseFloat(document.getElementById('f-vpm2').value)||null,
-    valor: parseFloat(document.getElementById('f-valor').value)||null,
-    valorLiquido: parseFloat(document.getElementById('f-valor-liq').value)||null,
-    pagamento: document.getElementById('f-pagamento').value.trim(),
-    tipo: document.getElementById('f-tipo').value,
-    status: document.getElementById('f-status').value,
-    validade: document.getElementById('f-validade').value||null,
-    notes: document.getElementById('f-notes').value.trim(),
-  };
-  if(!PROPOSALS[activeTerreno]) PROPOSALS[activeTerreno]=[];
-  if(editingId) {
-    const idx = PROPOSALS[activeTerreno].findIndex(p=>p.id===editingId);
-    if(idx!==-1) PROPOSALS[activeTerreno][idx]=prop;
-  } else {
-    PROPOSALS[activeTerreno].push(prop);
-  }
-  openTerrenos.add(activeTerreno);
-  closeModal();
-  render();
-}
-
-function deleteProposal(tid, pid, e) {
-  if(e) e.stopPropagation();
-  if(!confirm('Remover esta proposta?')) return;
-  PROPOSALS[tid] = (PROPOSALS[tid]||[]).filter(p=>p.id!==pid);
-  render();
-}
-
-document.getElementById('modal-overlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
 render();
 </script>
