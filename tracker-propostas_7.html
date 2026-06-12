@@ -163,17 +163,13 @@ function renderTotals() {
   const nProps = Object.values(PROPOSALS).reduce((s, a) => s + a.length, 0);
   const nTerrenosProp = Object.keys(PROPOSALS).filter(k => PROPOSALS[k].length).length;
   const pedidoTotal = TERRENOS.reduce((s, t) => s + t.total_alvo, 0);
-  // total ofertado: por terreno, o melhor entre (oferta pela área inteira) e (soma das ofertas por lote),
-  // para não somar escopos sobrepostos (ex.: Gleba 8S inteira + Quadra 5)
+  // total ofertado: por terreno, conta só a maior oferta líquida
+  // (ofertas no mesmo terreno podem se sobrepor/invalidar — ex.: Gleba 8S inteira vs Quadra 5)
   let ofertadoTotal = 0;
   for (const t of TERRENOS) {
     const props = PROPOSALS[t.id] || [];
     if (!props.length) continue;
-    const whole = props.filter(p => (p.loteArea || 0) >= t.tamanho * 0.97);
-    const partial = props.filter(p => (p.loteArea || 0) < t.tamanho * 0.97);
-    const bestWhole = whole.length ? Math.max(...whole.map(liq)) : 0;
-    const sumPartial = partial.reduce((s, p) => s + liq(p), 0);
-    ofertadoTotal += Math.max(bestWhole, sumPartial);
+    ofertadoTotal += Math.max(...props.map(liq));
   }
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
