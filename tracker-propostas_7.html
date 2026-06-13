@@ -12,67 +12,81 @@
     --bg: #fdfdfc;
     --accent: #1a6e4a;
     --warn: #b0541d;
+    --vgv: #6a4ea0;
     --hover: #f6f6f3;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: var(--bg); color: var(--text);
-    font-size: 14px; line-height: 1.5;
-    -webkit-font-smoothing: antialiased;
+    font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 1020px; margin: 0 auto; padding: 48px 24px 80px; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 48px 24px 80px; }
 
   header h1 { font-size: 21px; font-weight: 650; letter-spacing: -0.02em; }
   header p { color: var(--muted); font-size: 13px; margin-top: 2px; }
 
-  .totals { display: flex; gap: 40px; margin: 28px 0 36px; }
+  .totals { display: flex; gap: 38px; margin: 28px 0 14px; flex-wrap: wrap; }
   .totals .lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
   .totals .val { display: block; font-size: 19px; font-weight: 600; margin-top: 2px; }
+  .totals .val.vgv { color: var(--vgv); }
+
+  .legend { font-size: 11.5px; color: var(--muted); margin: 0 0 26px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .legend b { color: var(--text); font-weight: 600; }
 
   table { width: 100%; border-collapse: collapse; }
   th {
-    text-align: right; font-size: 11px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted);
-    padding: 8px 10px; border-bottom: 1px solid var(--text); white-space: nowrap;
+    text-align: right; font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--muted); padding: 8px 10px;
+    border-bottom: 1px solid var(--text); white-space: nowrap;
   }
   th:first-child { text-align: left; padding-left: 8px; }
+  th.l { text-align: left; }
   td {
-    padding: 11px 10px; text-align: right; border-bottom: 1px solid var(--line);
+    padding: 10px; text-align: right; border-bottom: 1px solid var(--line);
     font-variant-numeric: tabular-nums; white-space: nowrap;
   }
   td:first-child { text-align: left; padding-left: 8px; }
 
-  tr.terreno td { font-weight: 600; background: #f7f7f4; border-bottom: 1px solid var(--line); }
-  tr.terreno td:first-child { font-size: 14px; }
+  tr.terreno > td { font-weight: 600; background: #f4f4f1; border-bottom: 1px solid #dededa; }
+  tr.terreno > td:first-child { font-size: 14px; }
+  tr.terreno.clickable { cursor: pointer; }
+  tr.terreno.clickable:hover > td { background: #eeeeea; }
 
-  tr.oferta { cursor: pointer; }
-  tr.oferta:hover { background: var(--hover); }
-  tr.oferta td:first-child { padding-left: 26px; font-weight: 400; }
-  tr.oferta .chev { color: var(--muted); font-size: 10px; display: inline-block; width: 14px; transition: transform .15s; }
-  tr.oferta.open .chev { transform: rotate(90deg); }
-  .who { color: var(--muted); }
-  .delta-pos { color: var(--accent); font-weight: 600; }
-  .delta-neg { color: var(--warn); font-weight: 600; }
-  .muted { color: var(--muted); }
-  td.vgv { color: #6a4ea0; font-weight: 600; }
-  .est { border-bottom: 1px dotted var(--muted); cursor: help; }
+  tr.lote { cursor: default; }
+  tr.lote.clickable { cursor: pointer; }
+  tr.lote.clickable:hover > td { background: var(--hover); }
+  tr.lote > td:first-child { padding-left: 26px; font-weight: 400; }
+  tr.lote .chev { color: var(--muted); font-size: 9px; display: inline-block; width: 13px; transition: transform .15s; }
+  tr.lote.open .chev { transform: rotate(90deg); }
 
-  tr.empty td { font-weight: 400; }
-  .empty-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 26px 0 6px 8px; }
+  .chip {
+    display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px;
+    border-radius: 99px; white-space: nowrap;
+  }
+  .who { color: var(--muted); font-weight: 400; }
+  .semprop { color: var(--muted); font-style: italic; font-size: 12.5px; }
 
-  /* detalhe da proposta */
-  tr.detail > td { padding: 14px 10px 16px 40px; text-align: left; background: #fbfbf9; white-space: normal; }
-  .d-grid { display: flex; gap: 36px; flex-wrap: wrap; font-size: 13px; }
-  .d-grid .item .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
-  .d-grid .item .v { font-weight: 600; font-variant-numeric: tabular-nums; }
-  .d-notes { margin-top: 10px; font-size: 12.5px; color: var(--muted); max-width: 680px; }
+  /* VGV bar */
+  .vgvcell { position: relative; }
+  .vgvbar { display: inline-block; height: 5px; border-radius: 3px; background: var(--vgv); opacity: .28; vertical-align: middle; margin-right: 7px; }
+  .vgvval { color: var(--vgv); font-weight: 600; }
+  tr.terreno .vgvval { font-weight: 700; }
+
+  /* detalhe */
+  tr.detail > td { padding: 12px 10px 14px 40px; text-align: left; background: #fbfbf9; white-space: normal; }
+  .d-grid { display: flex; gap: 30px; flex-wrap: wrap; font-size: 13px; margin-bottom: 8px; }
+  .d-grid .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .d-grid .v { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .d-notes { font-size: 12.5px; color: var(--muted); max-width: 700px; }
+  .d-notes b { color: var(--text); font-weight: 550; }
   .d-notes .warn { color: var(--warn); }
+  .muted { color: var(--muted); }
 
-  @media (max-width: 720px) {
-    .wrap { padding: 28px 12px 60px; }
+  @media (max-width: 740px) {
+    .wrap { padding: 26px 12px 60px; }
     .hide-sm { display: none; }
-    .totals { gap: 24px; flex-wrap: wrap; }
+    .totals { gap: 22px; }
   }
 </style>
 </head>
@@ -84,202 +98,226 @@
   </header>
 
   <div class="totals" id="totals"></div>
+  <div class="legend">
+    <span><b>TPA</b> André (ERG Incorp.)</span>
+    <span><b>Grupo A</b> André, Otto, Bernardo</span>
+    <span><b>Grupo B</b> Adolfo, Dominique, Cláudio</span>
+    <span><b>ERG Par</b> os 6 sócios</span>
+  </div>
 
   <table id="tbl"></table>
 </div>
 
 <script>
-// ── TERRENOS ──────────────────────────────────────────────────────────────────
-// tamanho = área documental (m²). Q45 = 2×4.887,50 (IPTU); Q99 = 2×6.500 (matrículas 22.394/95)
+// ── DADOS ─────────────────────────────────────────────────────────────────────
+// Cada terreno tem lotes; cada lote tem dono, área, vgv (potencial, R$ milhões) e props[].
+// vgv do terreno = soma dos lotes. Pedido do lote = área × vpm2_alvo.
+// Fontes VGV: fotos (totais do terreno) ou extrapolação pelo R$/m² da foto / oferta.
 const TERRENOS = [
-  { id: 'santos-dumont', name: 'Posto Santos Dumont (SD 3636)', grupo: 'ab', tamanho: 4250,  vpm2_alvo: 8635, total_alvo: 36.7,  proprietario: 'TPA' },
-  { id: 'restaurante',   name: 'Santos Dumont 3600', grupo: 'ab',     tamanho: 875,   vpm2_alvo: 9371, total_alvo: 8.2,   proprietario: 'TPA' },
-  { id: 'posto-ws',      name: 'Posto Washington Soares', grupo: 'ab', tamanho: 4200,  vpm2_alvo: 3000, total_alvo: 12.6,  proprietario: 'TPA' },
-  { id: 'amaralina',     name: 'Amaralina',            grupo: 'ab',     tamanho: 2813,  vpm2_alvo: 3000, total_alvo: 8.4,   proprietario: 'TPA' },
-  { id: 'quadra-2-4',    name: 'Quadra 2,4',           grupo: 'familia',tamanho: 17000, vpm2_alvo: 3000, total_alvo: 51.0,  proprietario: 'Já dividida (→ TPA)' },
-  { id: 'sitio-butanta', name: 'Sítio Butantã',        grupo: 'familia',tamanho: 64093, vpm2_alvo: 2000, total_alvo: 128.2, proprietario: 'Novo Horizonte' },
-  { id: 'quadra-45',     name: 'Quadra 45 Lote 1 e 2',  grupo: 'familia',tamanho: 9775,  vpm2_alvo: 2000, total_alvo: 19.6,  proprietario: 'Já dividida (→ TPA)' },
-  { id: 'quadra-99',     name: 'Quadra 99 Lote 1 e 2',  grupo: 'familia',tamanho: 13000, vpm2_alvo: 1500, total_alvo: 19.5,  proprietario: 'Já dividida (→ TPA)' },
-  { id: 'quadra-6',      name: 'Quadra 6',              grupo: 'familia',tamanho: 4300,  vpm2_alvo: 2000, total_alvo: 8.6,   proprietario: 'ERG Par' },
-  { id: 'gleba-8s',      name: 'Gleba 8S',              grupo: 'familia',tamanho: 96780, vpm2_alvo: 2000, total_alvo: 193.6, proprietario: 'ERG Par' },
-  { id: 'quadra-xim',    name: 'Quadra XIM',            grupo: 'familia',tamanho: 10183, vpm2_alvo: 2000, total_alvo: 20.4,  proprietario: 'ERG Par' },
-  { id: 'quadra-6pe',    name: 'Quadra 6PE',            grupo: 'familia',tamanho: 5500,  vpm2_alvo: 1000, total_alvo: 5.5,   proprietario: 'Já dividida (→ TPA)' },
+  { id:'santos-dumont', name:'Posto Santos Dumont (SD 3636)', vpm2_alvo:8635, lotes:[
+    { nome:'Imóvel inteiro', dono:'TPA', area:4250, vgv:306.0, props:[] },
+  ]},
+  { id:'restaurante', name:'Santos Dumont 3600', vpm2_alvo:9371, lotes:[
+    { nome:'Imóvel inteiro', dono:'TPA', area:875, vgv:null, props:[] },
+  ]},
+  { id:'posto-ws', name:'Posto Washington Soares', vpm2_alvo:3000, lotes:[
+    { nome:'Imóvel inteiro', dono:'TPA', area:4200, vgv:null, props:[] },
+  ]},
+  { id:'amaralina', name:'Amaralina', vpm2_alvo:3000, lotes:[
+    { nome:'Imóvel inteiro', dono:'TPA', area:2813, vgv:null, props:[] },
+  ]},
+  { id:'quadra-2-4', name:'Quadra 2,4', vpm2_alvo:3000, lotes:[
+    { nome:'Otto + Bernardo (parte fundo)', dono:'Grupo A', area:6000, vgv:195.0, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Antes chamada "WS Antares". Área a confirmar com croqui.' },
+    ]},
+    { nome:'Parte TPA', dono:'TPA', area:2425, vgv:78.8, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:278.7, props:[] },
+  ]},
+  { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2000, lotes:[
+    { nome:'Otto + Bernardo (Lotes 2 e 3)', dono:'Grupo A', area:14822, vgv:444.7, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Ofertado só para as partes do Otto e do Bernardo.' },
+    ]},
+    { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:124.6, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:45119, vgv:1353.6, props:[] },
+  ]},
+  { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
+    { nome:'Lote 1 — Frente Mar', dono:'Grupo A', area:4887.5, vgv:116.48, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:13, valor:15.52, valorLiquido:13.97, vpm2:3177, areaConsiderada:4888, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido.' },
+    ]},
+    { nome:'Lote 2', dono:'Grupo B', area:4887.5, vgv:116.48, props:[] },
+  ]},
+  { id:'quadra-99', name:'Quadra 99', vpm2_alvo:1500, lotes:[
+    { nome:'Lote 1', dono:'Grupo B', area:6500, vgv:165.18, props:[] },
+    { nome:'Lote 2', dono:'TPA', area:6500, vgv:165.18, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:10.5, valor:12.58, valorLiquido:11.32, vpm2:1935, areaConsiderada:6500, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Lote 2 é somente do André (matrícula 22.395).' },
+    ]},
+  ]},
+  { id:'quadra-6', name:'Quadra 6', vpm2_alvo:2000, lotes:[
+    { nome:'Quadra inteira', dono:'ERG Par', area:4300, vgv:null, props:[] },
+  ]},
+  { id:'gleba-8s', name:'Gleba 8S', vpm2_alvo:2000, lotes:[
+    { nome:'Gleba inteira (em divisão)', dono:'ERG Par', area:96784, vgv:660.0, props:[
+      { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:11, valor:17.76, valorLiquido:15.98, vpm2:1851, areaConsiderada:9598, escopo:'Quadra 5 — Aldir Mentor', date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Cobre só a Quadra 5 (9.598 m²), menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas.' },
+    ]},
+  ]},
+  { id:'quadra-xim', name:'Quadra XIM', vpm2_alvo:2000, lotes:[
+    { nome:'Quadra inteira', dono:'ERG Par', area:10183, vgv:227.733, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:12, valor:21.86, valorLiquido:19.67, vpm2:2147, areaConsiderada:10183, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido.' },
+    ]},
+  ]},
+  { id:'quadra-6pe', name:'Quadra 6PE', vpm2_alvo:2000, lotes:[
+    { nome:'Terreno inteiro', dono:'TPA', area:5500, vgv:91.8, props:[
+      { buyer:'Victa', tipo:'permuta', permutaPct:11, valor:10.098, valorLiquido:10.098, vpm2:1781, areaConsiderada:5671, date:'2026-04-01', validade:null, pagamento:'11% do VGV em moeda corrente, conforme vendas e medição. 360 unid. em 2 torres, ~R$ 255 mil/unid.', notes:'Área residencial 5.671,24 m² a confirmar após regularização. Cronograma de 6 anos. Proposta R03, abril/2026.' },
+    ]},
+  ]},
 ];
 
-// ── PROPOSALS (hardcoded — edit here to update) ───────────────────────────────
-// loteArea = área oficial do lote (matrícula/IPTU). loteAreaFonte 'proponente' = sem doc, a confirmar.
-// O pedido do lote = loteArea × vpm2_alvo do terreno.
-let PROPOSALS = {
-  'quadra-xim': [
-    { id: 'riva_xim', buyer: 'Riva Incorporadora', lote: 'Quadra inteira', loteArea: 10183, loteAreaFonte: 'matrícula', vgv: 227.733, date: '2026-06-10', area: 10183, vpm2: 2147, valor: 21.86, valorLiquido: 19.67, tipo: 'permuta', permutaPct: 12, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido.' }
-  ],
-  'quadra-99': [
-    { id: 'riva_q99', buyer: 'Riva Incorporadora', lote: 'Lote 2 — André', loteArea: 6500, loteAreaFonte: 'matrícula', vgv: 126.505, date: '2026-06-10', area: 6500, vpm2: 1935, valor: 12.58, valorLiquido: 11.32, tipo: 'permuta', permutaPct: 10.5, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 2 é somente do André (matrícula 22.395). Lote 1 (6.500 m²) sem proposta.' }
-  ],
-  'gleba-8s': [
-    { id: 'riva_gleba', buyer: 'Riva Incorporadora', lote: 'Quadra 5 — Aldir Mentor', loteArea: 9598, loteAreaFonte: 'proponente', vgv: 175.203, date: '2026-06-10', area: 9598, vpm2: 1851, valor: 17.76, valorLiquido: 15.98, tipo: 'permuta', permutaPct: 11, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Área menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas — pedir confirmação.' },
-    { id: 'idibra_gleba8s', buyer: 'Construtora Duplo / Idibra', lote: 'Gleba inteira', loteArea: 82500, loteAreaFonte: 'matrícula', vgv: null, date: '2026-06-01', area: 82500, vpm2: 1200, valor: 99.0, valorLiquido: null, tipo: 'permuta-fisica', permutaPct: 40, status: 'em-negociacao', validade: '2026-07-01', pagamento: 'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes: '⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' }
-  ],
-  'quadra-45': [
-    { id: 'riva_q45', buyer: 'Riva Incorporadora', lote: 'Lote 1 — Frente Mar', loteArea: 4887.5, loteAreaFonte: 'IPTU', vgv: 116.48, date: '2026-06-10', area: 4888, vpm2: 3177, valor: 15.52, valorLiquido: 13.97, tipo: 'permuta', permutaPct: 13, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 2 (4.887,50 m²) sem proposta.' }
-  ],
-  'sitio-butanta': [
-    { id: 'riva_butanta', buyer: 'Riva Incorporadora', lote: 'Lotes 2 e 3 — W. Soares', loteArea: 14822, loteAreaFonte: 'proponente', vgv: 290.666, date: '2026-06-10', area: 14822, vpm2: 3004, valor: 44.53, valorLiquido: 40.08, tipo: 'permuta', permutaPct: 14, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 1 sem proposta. Divisão em lotes é do croqui da Riva — sem subdivisão na matrícula.' }
-  ],
-  'quadra-2-4': [
-    { id: 'riva_ws', buyer: 'Riva Incorporadora', lote: 'Lote 2 — parte fundo', loteArea: 6000, loteAreaFonte: 'proponente', vgv: 151.822, date: '2026-06-10', area: 6000, vpm2: 2997, valor: 17.98, valorLiquido: 16.18, tipo: 'permuta', permutaPct: 14, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Proposta refere-se ao imóvel 2,4 ha (Lote 2, somente parte fundo) — antes chamada "WS Antares". Área de 6.000 m² segundo a Riva, a confirmar com croqui.' }
-  ],
-  'quadra-6pe': [
-    { id: 'victa_6pe', buyer: 'Victa', lote: 'Terreno inteiro', loteArea: 5500, loteAreaFonte: 'matrícula', vgv: 91.8, date: '2026-04-01', area: 5671, vpm2: 1781, valor: 10.098, valorLiquido: 10.098, tipo: 'permuta', permutaPct: 11, status: 'proposta-recebida', validade: null, pagamento: '11% do VGV em moeda corrente, conforme vendas e medição de obra. 360 unidades em 2 torres, preço médio R$ 255 mil/unid.', notes: 'Área residencial de 5.671,24 m² a confirmar após plano de regularização. Cronograma de 6 anos (fase única). Proposta R03, abril/2026.' }
-  ],
-};
-
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-const STATUS_LABELS = {
-  'proposta-recebida': 'Proposta recebida',
-  'em-negociacao': 'Em negociação',
-  'aceita': 'Aceita',
-  'recusada': 'Recusada',
-  'standby': 'Standby',
-};
-const fmtN  = v => v != null ? Number(v).toLocaleString('pt-BR', {maximumFractionDigits: 0}) : '—';
+const fmtN  = v => v != null ? Number(v).toLocaleString('pt-BR', {maximumFractionDigits:0}) : '—';
 const fmtM  = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' M' : '—';
 const fmtM2 = v => v != null ? 'R$ ' + Math.round(v).toLocaleString('pt-BR') : '—';
 const fmtVGV = v => v == null ? '—' : (v >= 1000
-  ? 'R$ ' + (v / 1000).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' bi'
+  ? 'R$ ' + (v/1000).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' bi'
   : 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' M');
-const vgvTerreno = t => { const ps = PROPOSALS[t.id] || []; const s = ps.reduce((a, p) => a + (p.vgv || 0), 0); return s || null; };
-const fmtDate = d => { if (!d) return '—'; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
-const pctTag = (a, b) => {
-  if (a == null || b == null || !b) return '';
-  const p = (a - b) / b * 100;
-  return `<span class="${p >= 0 ? 'delta-pos' : 'delta-neg'}">${p >= 0 ? '+' : ''}${p.toFixed(0)}%</span>`;
-};
-const liq = p => p.valorLiquido != null ? p.valorLiquido : p.valor;
-const GRUPO_LABEL = { ab: 'AB', familia: 'Família' };
-const tipoLabel = p => {
-  if (p.tipo === 'permuta') return `Permuta financeira ${String(p.permutaPct).replace('.', ',')}%`;
-  if (p.tipo === 'permuta-fisica') return `Permuta física ${String(p.permutaPct).replace('.', ',')}%`;
-  if (p.tipo === 'venda') return 'Venda';
-  return 'Outro';
-};
-// pedido para o escopo (lote) da proposta
-const pedidoLote = (t, p) => (p.loteArea || t.tamanho) * t.vpm2_alvo / 1e6;
+const fmtDate = d => { if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
 
-let openProps = new Set();
+const DONO_COLOR = {
+  'TPA':     {bg:'#e3efe8', fg:'#1a6e4a'},
+  'Grupo A': {bg:'#e6eef7', fg:'#2b5f9e'},
+  'Grupo B': {bg:'#f4e7e0', fg:'#b0541d'},
+  'ERG Par': {bg:'#ece6f4', fg:'#6a4ea0'},
+};
+const chip = dono => { const c = DONO_COLOR[dono] || {bg:'#efefeb', fg:'#8a8a86'}; return `<span class="chip" style="background:${c.bg};color:${c.fg}">${dono}</span>`; };
+const liqP = p => p.valorLiquido != null ? p.valorLiquido : p.valor;
+const tipoLabel = p => (p.tipo==='permuta' ? `Permuta financeira ${String(p.permutaPct).replace('.',',')}%`
+  : p.tipo==='permuta-fisica' ? `Permuta física ${String(p.permutaPct).replace('.',',')}%`
+  : p.tipo==='venda' ? 'Venda' : 'Outro');
+
+const pedidoLote   = (t, l) => l.area * t.vpm2_alvo / 1e6;
+const pedidoTerreno= t => t.lotes.reduce((s,l)=> s + pedidoLote(t,l), 0);
+const areaTerreno  = t => t.lotes.reduce((s,l)=> s + l.area, 0);
+const vgvTerreno   = t => { const s = t.lotes.reduce((a,l)=> a + (l.vgv||0), 0); return s || null; };
+const bestLote     = l => l.props.length ? Math.max(...l.props.map(liqP)) : null;
+const ofertaTerreno= t => { let s=0,has=false; for(const l of t.lotes){ const b=bestLote(l); if(b!=null){s+=b;has=true;} } return has?s:null; };
+
+// escala global das barras de VGV
+const MAXVGV = Math.max(...TERRENOS.map(t => vgvTerreno(t) || 0));
+const vgvBar = v => { if(v==null) return '—'; const w = Math.max(2, Math.round(v/MAXVGV*120)); return `<span class="vgvbar" style="width:${w}px"></span><span class="vgvval">${fmtVGV(v)}</span>`; };
+
+let open = new Set();
+const rowKey = (ti, li, pi) => `${ti}.${li}.${pi==null?'x':pi}`;
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderTotals() {
-  const nProps = Object.values(PROPOSALS).reduce((s, a) => s + a.length, 0);
-  const nTerrenosProp = Object.keys(PROPOSALS).filter(k => PROPOSALS[k].length).length;
-  const pedidoTotal = TERRENOS.reduce((s, t) => s + t.total_alvo, 0);
-  // total ofertado: por terreno, conta só a maior oferta líquida
-  // (ofertas no mesmo terreno podem se sobrepor/invalidar — ex.: Gleba 8S inteira vs Quadra 5)
-  let ofertadoTotal = 0;
-  for (const t of TERRENOS) {
-    const props = PROPOSALS[t.id] || [];
-    if (!props.length) continue;
-    ofertadoTotal += Math.max(...props.map(liq));
-  }
-  // VGV potencial: soma do VGV de todas as propostas (lotes distintos não se sobrepõem)
-  const vgvTotal = Object.values(PROPOSALS).flat().reduce((s, p) => s + (p.vgv || 0), 0);
+  const nProps = TERRENOS.reduce((s,t)=> s + t.lotes.reduce((a,l)=> a + l.props.length, 0), 0);
+  const pedido = TERRENOS.reduce((s,t)=> s + pedidoTerreno(t), 0);
+  const ofertado = TERRENOS.reduce((s,t)=> s + (ofertaTerreno(t)||0), 0);
+  const vgv = TERRENOS.reduce((s,t)=> s + (vgvTerreno(t)||0), 0);
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
-    <div><span class="lbl">Com proposta</span><span class="val">${nTerrenosProp}</span></div>
     <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
-    <div><span class="lbl">Pedido total (portfólio)</span><span class="val">${fmtM(pedidoTotal)}</span></div>
-    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertadoTotal)}</span></div>
-    <div><span class="lbl">VGV potencial</span><span class="val">${fmtVGV(vgvTotal)}</span></div>`;
+    <div><span class="lbl">Pedido total</span><span class="val">${fmtM(pedido)}</span></div>
+    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertado)}</span></div>
+    <div><span class="lbl">VGV potencial</span><span class="val vgv">${fmtVGV(vgv)}</span></div>`;
 }
 
-function renderDetail(t, p) {
-  const ped = pedidoLote(t, p);
-  const areaDiff = p.area != null && p.loteArea != null && Math.abs(p.area - p.loteArea) > 1;
-  return `<tr class="detail"><td colspan="8">
+function detailRow(t, p, colspan) {
+  const vpm2Of = liqP(p) * 1e6 / p.areaConsiderada;
+  return `<tr class="detail"><td colspan="${colspan}">
     <div class="d-grid">
-      <div class="item"><span class="lbl">Modelo</span><br><span class="v">${tipoLabel(p)}</span></div>
+      <div><div class="lbl">Modelo</div><div class="v">${tipoLabel(p)}</div></div>
+      <div><div class="lbl">Área considerada</div><div class="v">${fmtN(p.areaConsiderada)} m²</div></div>
+      <div><div class="lbl">R$/m² pedido → oferta</div><div class="v">${fmtM2(t.vpm2_alvo)} → ${fmtM2(vpm2Of)}</div></div>
+      <div><div class="lbl">Validade</div><div class="v">${fmtDate(p.validade)}</div></div>
     </div>
-    <div class="d-notes">
-      ${p.pagamento ? `<div><b>Pagamento:</b> ${p.pagamento}</div>` : ''}
-      ${areaDiff ? `<div>Área considerada pelo proponente: ${fmtN(p.area)} m² (lote: ${fmtN(p.loteArea)} m²).</div>` : ''}
-      ${p.loteAreaFonte === 'proponente' ? `<div class="warn">Área do lote segundo o proponente — sem subdivisão documental, a confirmar.</div>` : ''}
-      ${p.notes ? `<div>${p.notes.replace(/⚠️([^.]*\.)/g, '<span class="warn">⚠️$1</span>')}</div>` : ''}
-    </div>
+    <div class="d-notes">${p.pagamento?`<b>Pagamento:</b> ${p.pagamento}`:''}${p.notes?`<br>${p.notes.replace(/⚠️([^.]*\.)/g,'<span class="warn">⚠️$1</span>')}`:''}</div>
   </td></tr>`;
 }
 
 function render() {
   renderTotals();
-  const withProps = TERRENOS.filter(t => (PROPOSALS[t.id] || []).length);
-  const without = TERRENOS.filter(t => !(PROPOSALS[t.id] || []).length);
-
+  const COLS = 6;
   let html = `<thead><tr>
-    <th>Terreno / lote</th>
-    <th class="hide-sm" style="text-align:left">Grupo</th>
+    <th class="l">Terreno / lote</th>
+    <th class="l hide-sm">Proprietário</th>
     <th>Área</th>
-    <th class="hide-sm">R$/m² pedido</th>
-    <th class="hide-sm">R$/m² oferta</th>
     <th>Pedido</th>
     <th>VGV potencial</th>
     <th>Oferta líq.</th>
   </tr></thead><tbody>`;
 
-  for (const t of withProps) {
+  TERRENOS.forEach((t, ti) => {
+    const single = t.lotes.length === 1;
+    const lote0 = t.lotes[0];
+
+    if (single && lote0.props.length <= 1) {
+      // terreno = 1 linha
+      const p = lote0.props[0];
+      const k = rowKey(ti, 0, p ? 0 : null);
+      const isOpen = open.has(k);
+      const clickable = !!p;
+      html += `<tr class="terreno ${clickable?'clickable':''} ${isOpen?'open':''}" ${clickable?`onclick="toggle('${k}')"`:''}>
+        <td>${clickable?`<span class="chev" style="${isOpen?'transform:rotate(90deg)':''}">▶</span>`:''}${t.name}</td>
+        <td class="hide-sm">${chip(lote0.dono)}</td>
+        <td>${fmtN(areaTerreno(t))} m²</td>
+        <td>${fmtM(pedidoTerreno(t))}</td>
+        <td class="vgvcell">${vgvBar(vgvTerreno(t))}</td>
+        <td>${p ? fmtM(liqP(p)) : '<span class="semprop">sem proposta</span>'}</td>
+      </tr>`;
+      if (p && isOpen) html += detailRow(t, p, COLS);
+      return;
+    }
+
+    // terreno com vários lotes (ou 1 lote com várias propostas): linha-mãe + filhas
     html += `<tr class="terreno">
       <td>${t.name}</td>
-      <td class="hide-sm" style="text-align:left;font-weight:400;color:var(--muted)">${GRUPO_LABEL[t.grupo] || t.grupo}</td>
-      <td>${fmtN(t.tamanho)} m²</td>
-      <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
-      <td class="hide-sm"></td>
-      <td>${fmtM(t.total_alvo)}</td>
-      <td class="vgv">${fmtVGV(vgvTerreno(t))}</td>
-      <td></td>
+      <td class="hide-sm muted" style="font-weight:400">${single?chip(lote0.dono):'—'}</td>
+      <td>${fmtN(areaTerreno(t))} m²</td>
+      <td>${fmtM(pedidoTerreno(t))}</td>
+      <td class="vgvcell">${vgvBar(vgvTerreno(t))}</td>
+      <td>${ofertaTerreno(t)!=null?fmtM(ofertaTerreno(t)):'—'}</td>
     </tr>`;
-    for (const p of PROPOSALS[t.id]) {
-      const ped = pedidoLote(t, p);
-      const isOpen = openProps.has(p.id);
-      const est = p.loteAreaFonte === 'proponente';
-      const vpm2Liq = liq(p) * 1e6 / (p.area || p.loteArea);
-      html += `<tr class="oferta ${isOpen ? 'open' : ''}" onclick="toggle('${p.id}')">
-        <td><span class="chev">▶</span>${p.lote} <span class="who">· ${p.buyer}</span></td>
-        <td class="hide-sm"></td>
-        <td><span class="${est ? 'est' : ''}" ${est ? 'title="área segundo o proponente — a confirmar"' : ''}>${fmtN(p.loteArea)} m²${est ? '*' : ''}</span></td>
-        <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
-        <td class="hide-sm">${fmtM2(vpm2Liq)}</td>
-        <td>${fmtM(ped)}</td>
-        <td class="vgv">${fmtVGV(p.vgv)}</td>
-        <td>${fmtM(liq(p))}</td>
+
+    t.lotes.forEach((l, li) => {
+      if (single && l.props.length > 1) {
+        // 1 lote, várias propostas concorrentes (ex.: 8S): cada proposta é uma linha
+        l.props.forEach((p, pi) => {
+          const k = rowKey(ti, li, pi);
+          const isOpen = open.has(k);
+          html += `<tr class="lote clickable ${isOpen?'open':''}" onclick="toggle('${k}')">
+            <td><span class="chev">▶</span>${p.buyer} <span class="who">· ${p.escopo||l.nome}</span></td>
+            <td class="hide-sm">${chip(l.dono)}</td>
+            <td>${fmtN(p.areaConsiderada)} m²</td>
+            <td>${fmtM(p.areaConsiderada * t.vpm2_alvo / 1e6)}</td>
+            <td class="vgvcell">${pi===0?vgvBar(l.vgv):''}</td>
+            <td>${fmtM(liqP(p))}</td>
+          </tr>`;
+          if (isOpen) html += detailRow(t, p, COLS);
+        });
+        return;
+      }
+      const p = l.props[0];
+      const k = rowKey(ti, li, p ? 0 : null);
+      const isOpen = open.has(k);
+      const clickable = !!p;
+      html += `<tr class="lote ${clickable?'clickable':''} ${isOpen?'open':''}" ${clickable?`onclick="toggle('${k}')"`:''}>
+        <td>${clickable?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${l.nome}</td>
+        <td class="hide-sm">${chip(l.dono)}</td>
+        <td>${fmtN(l.area)} m²</td>
+        <td>${fmtM(pedidoLote(t,l))}</td>
+        <td class="vgvcell">${vgvBar(l.vgv)}</td>
+        <td>${p ? fmtM(liqP(p)) : '<span class="semprop">sem proposta</span>'}</td>
       </tr>`;
-      if (isOpen) html += renderDetail(t, p);
-    }
-  }
+      if (p && isOpen) html += detailRow(t, p, COLS);
+    });
+  });
+
   html += `</tbody>`;
   document.getElementById('tbl').innerHTML = html;
-
-  if (without.length) {
-    let extra = `<tbody><tr><td colspan="8" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
-    for (const t of without) {
-      extra += `<tr class="empty">
-        <td style="padding-left:8px">${t.name}</td>
-        <td class="hide-sm" style="text-align:left;color:var(--muted)">${GRUPO_LABEL[t.grupo] || t.grupo}</td>
-        <td>${fmtN(t.tamanho)} m²</td>
-        <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
-        <td class="hide-sm">—</td>
-        <td>${fmtM(t.total_alvo)}</td>
-        <td>—</td>
-        <td>—</td>
-      </tr>`;
-    }
-    extra += `</tbody>`;
-    document.getElementById('tbl').innerHTML += extra;
-  }
 }
 
-function toggle(id) {
-  openProps.has(id) ? openProps.delete(id) : openProps.add(id);
-  render();
-}
-
+function toggle(k){ open.has(k)?open.delete(k):open.add(k); render(); }
 render();
 </script>
 </body>
