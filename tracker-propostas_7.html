@@ -55,6 +55,7 @@
   .delta-pos { color: var(--accent); font-weight: 600; }
   .delta-neg { color: var(--warn); font-weight: 600; }
   .muted { color: var(--muted); }
+  td.vgv { color: #6a4ea0; font-weight: 600; }
   .est { border-bottom: 1px dotted var(--muted); cursor: help; }
 
   tr.empty td { font-weight: 400; }
@@ -79,7 +80,7 @@
 <div class="wrap">
   <header>
     <h1>Propostas — Terrenos AB</h1>
-    <p>André Bichucher · Atualizado em 11/06/2026</p>
+    <p>André Bichucher · Atualizado em 13/06/2026</p>
   </header>
 
   <div class="totals" id="totals"></div>
@@ -91,8 +92,8 @@
 // ── TERRENOS ──────────────────────────────────────────────────────────────────
 // tamanho = área documental (m²). Q45 = 2×4.887,50 (IPTU); Q99 = 2×6.500 (matrículas 22.394/95)
 const TERRENOS = [
-  { id: 'santos-dumont', name: 'Posto Santos Dumont', grupo: 'ab',     tamanho: 4250,  vpm2_alvo: 8000, total_alvo: 34.0,  proprietario: 'TPA' },
-  { id: 'restaurante',   name: 'Santos Dumont 3600', grupo: 'ab',     tamanho: 875,   vpm2_alvo: 8000, total_alvo: 7.0,   proprietario: 'TPA' },
+  { id: 'santos-dumont', name: 'Posto Santos Dumont (SD 3636)', grupo: 'ab', tamanho: 4250,  vpm2_alvo: 8635, total_alvo: 36.7,  proprietario: 'TPA' },
+  { id: 'restaurante',   name: 'Santos Dumont 3600', grupo: 'ab',     tamanho: 875,   vpm2_alvo: 9371, total_alvo: 8.2,   proprietario: 'TPA' },
   { id: 'posto-ws',      name: 'Posto Washington Soares', grupo: 'ab', tamanho: 4200,  vpm2_alvo: 3000, total_alvo: 12.6,  proprietario: 'TPA' },
   { id: 'amaralina',     name: 'Amaralina',            grupo: 'ab',     tamanho: 2813,  vpm2_alvo: 3000, total_alvo: 8.4,   proprietario: 'TPA' },
   { id: 'quadra-2-4',    name: 'Quadra 2,4',           grupo: 'familia',tamanho: 17000, vpm2_alvo: 3000, total_alvo: 51.0,  proprietario: 'Já dividida (→ TPA)' },
@@ -100,8 +101,8 @@ const TERRENOS = [
   { id: 'quadra-45',     name: 'Quadra 45 Lote 1 e 2',  grupo: 'familia',tamanho: 9775,  vpm2_alvo: 2000, total_alvo: 19.6,  proprietario: 'Já dividida (→ TPA)' },
   { id: 'quadra-99',     name: 'Quadra 99 Lote 1 e 2',  grupo: 'familia',tamanho: 13000, vpm2_alvo: 1500, total_alvo: 19.5,  proprietario: 'Já dividida (→ TPA)' },
   { id: 'quadra-6',      name: 'Quadra 6',              grupo: 'familia',tamanho: 4300,  vpm2_alvo: 2000, total_alvo: 8.6,   proprietario: 'ERG Par' },
-  { id: 'gleba-8s',      name: 'Gleba 8S',              grupo: 'familia',tamanho: 82500, vpm2_alvo: 2000, total_alvo: 165.0, proprietario: 'ERG Par' },
-  { id: 'quadra-xim',    name: 'Quadra XIM',            grupo: 'familia',tamanho: 10813, vpm2_alvo: 2000, total_alvo: 21.6,  proprietario: 'ERG Par' },
+  { id: 'gleba-8s',      name: 'Gleba 8S',              grupo: 'familia',tamanho: 96780, vpm2_alvo: 2000, total_alvo: 193.6, proprietario: 'ERG Par' },
+  { id: 'quadra-xim',    name: 'Quadra XIM',            grupo: 'familia',tamanho: 10183, vpm2_alvo: 2000, total_alvo: 20.4,  proprietario: 'ERG Par' },
   { id: 'quadra-6pe',    name: 'Quadra 6PE',            grupo: 'familia',tamanho: 5500,  vpm2_alvo: 1000, total_alvo: 5.5,   proprietario: 'Já dividida (→ TPA)' },
 ];
 
@@ -110,21 +111,23 @@ const TERRENOS = [
 // O pedido do lote = loteArea × vpm2_alvo do terreno.
 let PROPOSALS = {
   'quadra-xim': [
-    { id: 'riva_xim', buyer: 'Riva Incorporadora', lote: 'Quadra inteira', loteArea: 10813, loteAreaFonte: 'matrícula', date: '2026-06-10', area: 10183, vpm2: 2147, valor: 21.86, valorLiquido: 19.67, tipo: 'permuta', permutaPct: 12, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Riva considerou 10.183 m² (630 m² a menos que a matrícula). Desconto de 10% de comercialização embutido no líquido.' }
+    { id: 'riva_xim', buyer: 'Riva Incorporadora', lote: 'Quadra inteira', loteArea: 10183, loteAreaFonte: 'matrícula', vgv: 227.733, date: '2026-06-10', area: 10183, vpm2: 2147, valor: 21.86, valorLiquido: 19.67, tipo: 'permuta', permutaPct: 12, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido.' }
   ],
   'quadra-99': [
-    { id: 'riva_q99', buyer: 'Riva Incorporadora', lote: 'Lote 2 — Dioguinho', loteArea: 6500, loteAreaFonte: 'matrícula', date: '2026-06-10', area: 6500, vpm2: 1935, valor: 12.58, valorLiquido: 11.32, tipo: 'permuta', permutaPct: 10.5, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 1 (6.500 m²) sem proposta.' }
+    { id: 'riva_q99', buyer: 'Riva Incorporadora', lote: 'Lote 2 — André', loteArea: 6500, loteAreaFonte: 'matrícula', vgv: 126.505, date: '2026-06-10', area: 6500, vpm2: 1935, valor: 12.58, valorLiquido: 11.32, tipo: 'permuta', permutaPct: 10.5, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 2 é somente do André (matrícula 22.395). Lote 1 (6.500 m²) sem proposta.' }
   ],
   'gleba-8s': [
-    { id: 'riva_gleba', buyer: 'Riva Incorporadora', lote: 'Quadra 5 — Aldir Mentor', loteArea: 9598, loteAreaFonte: 'proponente', date: '2026-06-10', area: 9598, vpm2: 1851, valor: 17.76, valorLiquido: 15.98, tipo: 'permuta', permutaPct: 11, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas — pedir confirmação.' },
-    { id: 'idibra_gleba8s', buyer: 'Construtora Duplo / Idibra', lote: 'Gleba inteira', loteArea: 82500, loteAreaFonte: 'matrícula', date: '2026-06-01', area: 82500, vpm2: 1200, valor: 99.0, valorLiquido: null, tipo: 'permuta-fisica', permutaPct: 40, status: 'em-negociacao', validade: '2026-07-01', pagamento: 'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes: '⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' }
+    { id: 'riva_gleba', buyer: 'Riva Incorporadora', lote: 'Quadra 5 — Aldir Mentor', loteArea: 9598, loteAreaFonte: 'proponente', vgv: 175.203, date: '2026-06-10', area: 9598, vpm2: 1851, valor: 17.76, valorLiquido: 15.98, tipo: 'permuta', permutaPct: 11, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Área menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas — pedir confirmação.' },
+    { id: 'idibra_gleba8s', buyer: 'Construtora Duplo / Idibra', lote: 'Gleba inteira', loteArea: 82500, loteAreaFonte: 'matrícula', vgv: null, date: '2026-06-01', area: 82500, vpm2: 1200, valor: 99.0, valorLiquido: null, tipo: 'permuta-fisica', permutaPct: 40, status: 'em-negociacao', validade: '2026-07-01', pagamento: 'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes: '⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' }
   ],
   'quadra-45': [
-    { id: 'riva_q45', buyer: 'Riva Incorporadora', lote: 'Lote 1 — Frente Mar', loteArea: 4887.5, loteAreaFonte: 'IPTU', date: '2026-06-10', area: 4888, vpm2: 3177, valor: 15.52, valorLiquido: 13.97, tipo: 'permuta', permutaPct: 13, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 2 (4.887,50 m²) sem proposta.' }
+    { id: 'riva_q45', buyer: 'Riva Incorporadora', lote: 'Lote 1 — Frente Mar', loteArea: 4887.5, loteAreaFonte: 'IPTU', vgv: 116.48, date: '2026-06-10', area: 4888, vpm2: 3177, valor: 15.52, valorLiquido: 13.97, tipo: 'permuta', permutaPct: 13, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 2 (4.887,50 m²) sem proposta.' }
   ],
   'sitio-butanta': [
-    { id: 'riva_butanta', buyer: 'Riva Incorporadora', lote: 'Lotes 2 e 3 — W. Soares', loteArea: 14822, loteAreaFonte: 'proponente', date: '2026-06-10', area: 14822, vpm2: 3004, valor: 44.53, valorLiquido: 40.08, tipo: 'permuta', permutaPct: 14, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 1 sem proposta. Divisão em lotes é do croqui da Riva — sem subdivisão na matrícula.' },
-    { id: 'riva_ws', buyer: 'Riva Incorporadora', lote: 'Lote 02 — WS Antares', loteArea: 6000, loteAreaFonte: 'proponente', date: '2026-06-10', area: 6000, vpm2: 2997, valor: 17.98, valorLiquido: 16.18, tipo: 'permuta', permutaPct: 14, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. ⚠️ Localização a confirmar: não cabe no Posto Washington Soares (4.205,82 m² no IPTU) — tratado como fração do Butantã. Aguardando croqui da Riva.' }
+    { id: 'riva_butanta', buyer: 'Riva Incorporadora', lote: 'Lotes 2 e 3 — W. Soares', loteArea: 14822, loteAreaFonte: 'proponente', vgv: 290.666, date: '2026-06-10', area: 14822, vpm2: 3004, valor: 44.53, valorLiquido: 40.08, tipo: 'permuta', permutaPct: 14, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Lote 1 sem proposta. Divisão em lotes é do croqui da Riva — sem subdivisão na matrícula.' }
+  ],
+  'quadra-2-4': [
+    { id: 'riva_ws', buyer: 'Riva Incorporadora', lote: 'Lote 2 — parte fundo', loteArea: 6000, loteAreaFonte: 'proponente', vgv: 151.822, date: '2026-06-10', area: 6000, vpm2: 2997, valor: 17.98, valorLiquido: 16.18, tipo: 'permuta', permutaPct: 14, status: 'proposta-recebida', validade: '2026-07-10', pagamento: 'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes: 'Desconto de 10% de comercialização embutido no líquido. Proposta refere-se ao imóvel 2,4 ha (Lote 2, somente parte fundo) — antes chamada "WS Antares". Área de 6.000 m² segundo a Riva, a confirmar com croqui.' }
   ],
 };
 
@@ -139,6 +142,10 @@ const STATUS_LABELS = {
 const fmtN  = v => v != null ? Number(v).toLocaleString('pt-BR', {maximumFractionDigits: 0}) : '—';
 const fmtM  = v => v != null ? 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' M' : '—';
 const fmtM2 = v => v != null ? 'R$ ' + Math.round(v).toLocaleString('pt-BR') : '—';
+const fmtVGV = v => v == null ? '—' : (v >= 1000
+  ? 'R$ ' + (v / 1000).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' bi'
+  : 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' M');
+const vgvTerreno = t => { const ps = PROPOSALS[t.id] || []; const s = ps.reduce((a, p) => a + (p.vgv || 0), 0); return s || null; };
 const fmtDate = d => { if (!d) return '—'; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
 const pctTag = (a, b) => {
   if (a == null || b == null || !b) return '';
@@ -171,18 +178,21 @@ function renderTotals() {
     if (!props.length) continue;
     ofertadoTotal += Math.max(...props.map(liq));
   }
+  // VGV potencial: soma do VGV de todas as propostas (lotes distintos não se sobrepõem)
+  const vgvTotal = Object.values(PROPOSALS).flat().reduce((s, p) => s + (p.vgv || 0), 0);
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
     <div><span class="lbl">Com proposta</span><span class="val">${nTerrenosProp}</span></div>
     <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
     <div><span class="lbl">Pedido total (portfólio)</span><span class="val">${fmtM(pedidoTotal)}</span></div>
-    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertadoTotal)}</span></div>`;
+    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertadoTotal)}</span></div>
+    <div><span class="lbl">VGV potencial</span><span class="val">${fmtVGV(vgvTotal)}</span></div>`;
 }
 
 function renderDetail(t, p) {
   const ped = pedidoLote(t, p);
   const areaDiff = p.area != null && p.loteArea != null && Math.abs(p.area - p.loteArea) > 1;
-  return `<tr class="detail"><td colspan="7">
+  return `<tr class="detail"><td colspan="8">
     <div class="d-grid">
       <div class="item"><span class="lbl">Modelo</span><br><span class="v">${tipoLabel(p)}</span></div>
     </div>
@@ -207,6 +217,7 @@ function render() {
     <th class="hide-sm">R$/m² pedido</th>
     <th class="hide-sm">R$/m² oferta</th>
     <th>Pedido</th>
+    <th>VGV potencial</th>
     <th>Oferta líq.</th>
   </tr></thead><tbody>`;
 
@@ -218,6 +229,7 @@ function render() {
       <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
       <td class="hide-sm"></td>
       <td>${fmtM(t.total_alvo)}</td>
+      <td class="vgv">${fmtVGV(vgvTerreno(t))}</td>
       <td></td>
     </tr>`;
     for (const p of PROPOSALS[t.id]) {
@@ -232,6 +244,7 @@ function render() {
         <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
         <td class="hide-sm">${fmtM2(vpm2Liq)}</td>
         <td>${fmtM(ped)}</td>
+        <td class="vgv">${fmtVGV(p.vgv)}</td>
         <td>${fmtM(liq(p))}</td>
       </tr>`;
       if (isOpen) html += renderDetail(t, p);
@@ -241,7 +254,7 @@ function render() {
   document.getElementById('tbl').innerHTML = html;
 
   if (without.length) {
-    let extra = `<tbody><tr><td colspan="7" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
+    let extra = `<tbody><tr><td colspan="8" style="border:none;padding:0"><div class="empty-title">Sem proposta</div></td></tr>`;
     for (const t of without) {
       extra += `<tr class="empty">
         <td style="padding-left:8px">${t.name}</td>
@@ -250,6 +263,7 @@ function render() {
         <td class="hide-sm">${fmtM2(t.vpm2_alvo)}</td>
         <td class="hide-sm">—</td>
         <td>${fmtM(t.total_alvo)}</td>
+        <td>—</td>
         <td>—</td>
       </tr>`;
     }
