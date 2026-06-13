@@ -267,8 +267,8 @@ function render() {
     const tKey = 'T:'+t.id;
     const tOpen = open.has(tKey);
 
-    // ── linha do terreno ──
-    const ownerCell = single ? chip(lote0.dono) : '<span class="muted">—</span>';
+    // ── linha do terreno ── (fechado: TPA se 100% do André, senão ERG Par/Família)
+    const ownerCell = chip(t.lotes.every(l => l.dono === 'TPA') ? 'TPA' : 'ERG Par/Família');
     const ofTer = ofertaTerreno(t);
     html += `<tr class="terreno ${expandable?'clickable':''} ${tOpen?'open':''}" ${expandable?`onclick="toggle('${tKey}')"`:''}>
       <td>${expandable?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${t.name}</td>
