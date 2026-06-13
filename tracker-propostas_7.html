@@ -101,8 +101,9 @@
   <div class="legend">
     <span><b>TPA</b> André (ERG Incorp.)</span>
     <span><b>Grupo A</b> André, Otto, Bernardo</span>
+    <span><b>Otto + Bernardo</b> (sem André)</span>
     <span><b>Grupo B</b> Adolfo, Dominique, Cláudio</span>
-    <span><b>ERG Par</b> os 6 sócios</span>
+    <span><b>ERG Par/Família</b> os 6 sócios</span>
   </div>
 
   <table id="tbl"></table>
@@ -114,7 +115,7 @@
 // vgv do terreno = soma dos lotes. Pedido do lote = área × vpm2_alvo.
 // Fontes VGV: fotos (totais do terreno) ou extrapolação pelo R$/m² da foto / oferta.
 const TERRENOS = [
-  { id:'santos-dumont', name:'Posto Santos Dumont (SD 3636)', vpm2_alvo:8635, lotes:[
+  { id:'santos-dumont', name:'Santos Dumont 3636', vpm2_alvo:8635, lotes:[
     { nome:'Imóvel inteiro', dono:'TPA', area:4250, vgv:306.0, props:[] },
   ]},
   { id:'restaurante', name:'Santos Dumont 3600', vpm2_alvo:9371, lotes:[
@@ -123,18 +124,18 @@ const TERRENOS = [
   { id:'posto-ws', name:'Posto Washington Soares', vpm2_alvo:3000, lotes:[
     { nome:'Imóvel inteiro', dono:'TPA', area:4200, vgv:null, props:[] },
   ]},
-  { id:'amaralina', name:'Amaralina', vpm2_alvo:3000, lotes:[
+  { id:'amaralina', name:'Quadra Amaralina', vpm2_alvo:3000, lotes:[
     { nome:'Imóvel inteiro', dono:'TPA', area:2813, vgv:null, props:[] },
   ]},
   { id:'quadra-2-4', name:'Quadra 2,4', vpm2_alvo:3000, lotes:[
-    { nome:'Otto + Bernardo (parte fundo)', dono:'Grupo A', area:6000, vgv:195.0, props:[
+    { nome:'Parte fundo', dono:'Otto + Bernardo', area:6000, vgv:195.0, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Antes chamada "WS Antares". Área a confirmar com croqui.' },
     ]},
     { nome:'Parte TPA', dono:'TPA', area:2425, vgv:78.8, props:[] },
     { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:278.7, props:[] },
   ]},
   { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2000, lotes:[
-    { nome:'Otto + Bernardo (Lotes 2 e 3)', dono:'Grupo A', area:14822, vgv:444.7, props:[
+    { nome:'Lotes 2 e 3', dono:'Otto + Bernardo', area:14822, vgv:444.7, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Ofertado só para as partes do Otto e do Bernardo.' },
     ]},
     { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:124.6, props:[] },
@@ -153,21 +154,21 @@ const TERRENOS = [
     ]},
   ]},
   { id:'quadra-6', name:'Quadra 6', vpm2_alvo:2000, lotes:[
-    { nome:'Quadra inteira', dono:'ERG Par', area:4300, vgv:null, props:[] },
+    { nome:'Quadra inteira', dono:'ERG Par/Família', area:4300, vgv:null, props:[] },
   ]},
   { id:'gleba-8s', name:'Gleba 8S', vpm2_alvo:2000, lotes:[
-    { nome:'Gleba inteira (em divisão)', dono:'ERG Par', area:96784, vgv:660.0, props:[
+    { nome:'Gleba inteira (em divisão)', dono:'ERG Par/Família', area:96784, vgv:660.0, props:[
       { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:11, valor:17.76, valorLiquido:15.98, vpm2:1851, areaConsiderada:9598, escopo:'Quadra 5 — Aldir Mentor', date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Cobre só a Quadra 5 (9.598 m²), menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas.' },
     ]},
   ]},
   { id:'quadra-xim', name:'Quadra XIM', vpm2_alvo:2000, lotes:[
-    { nome:'Quadra inteira', dono:'ERG Par', area:10183, vgv:227.733, props:[
+    { nome:'Quadra inteira', dono:'ERG Par/Família', area:10183, vgv:227.733, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:12, valor:21.86, valorLiquido:19.67, vpm2:2147, areaConsiderada:10183, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido.' },
     ]},
   ]},
   { id:'quadra-6pe', name:'Quadra 6PE', vpm2_alvo:2000, lotes:[
-    { nome:'Terreno inteiro', dono:'TPA', area:5500, vgv:91.8, props:[
+    { nome:'Terreno inteiro', dono:'ERG Par/Família', area:5500, vgv:91.8, props:[
       { buyer:'Victa', tipo:'permuta', permutaPct:11, valor:10.098, valorLiquido:10.098, vpm2:1781, areaConsiderada:5671, date:'2026-04-01', validade:null, pagamento:'11% do VGV em moeda corrente, conforme vendas e medição. 360 unid. em 2 torres, ~R$ 255 mil/unid.', notes:'Área residencial 5.671,24 m² a confirmar após regularização. Cronograma de 6 anos. Proposta R03, abril/2026.' },
     ]},
   ]},
@@ -183,10 +184,11 @@ const fmtVGV = v => v == null ? '—' : (v >= 1000
 const fmtDate = d => { if(!d) return '—'; const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`; };
 
 const DONO_COLOR = {
-  'TPA':     {bg:'#e3efe8', fg:'#1a6e4a'},
-  'Grupo A': {bg:'#e6eef7', fg:'#2b5f9e'},
-  'Grupo B': {bg:'#f4e7e0', fg:'#b0541d'},
-  'ERG Par': {bg:'#ece6f4', fg:'#6a4ea0'},
+  'TPA':             {bg:'#e3efe8', fg:'#1a6e4a'},
+  'Grupo A':         {bg:'#e6eef7', fg:'#2b5f9e'},
+  'Otto + Bernardo': {bg:'#e0eff0', fg:'#1f7a82'},
+  'Grupo B':         {bg:'#f4e7e0', fg:'#b0541d'},
+  'ERG Par/Família': {bg:'#ece6f4', fg:'#6a4ea0'},
 };
 const chip = dono => { const c = DONO_COLOR[dono] || {bg:'#efefeb', fg:'#8a8a86'}; return `<span class="chip" style="background:${c.bg};color:${c.fg}">${dono}</span>`; };
 const liqP = p => p.valorLiquido != null ? p.valorLiquido : p.valor;
@@ -247,7 +249,9 @@ function render() {
     <th>Oferta líq.</th>
   </tr></thead><tbody>`;
 
-  TERRENOS.forEach((t, ti) => {
+  const ordered = [...TERRENOS].sort((a,b) => (vgvTerreno(b)||0) - (vgvTerreno(a)||0));
+  ordered.forEach((t) => {
+    const ti = t.id;
     const single = t.lotes.length === 1;
     const lote0 = t.lotes[0];
 
