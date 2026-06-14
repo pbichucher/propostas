@@ -70,11 +70,9 @@
   .who { color: var(--muted); font-weight: 400; }
   .semprop { color: var(--muted); font-style: italic; font-size: 12.5px; }
 
-  /* VGV bar */
-  .vgvcell { position: relative; }
-  .vgvbar { display: inline-block; height: 5px; border-radius: 3px; background: var(--vgv); opacity: .28; vertical-align: middle; margin-right: 7px; }
-  .vgvval { color: var(--vgv); font-weight: 600; }
-  tr.terreno .vgvval { font-weight: 700; }
+  /* VGV cores */
+  .vgvval  { color: var(--vgv); font-weight: 600; }   /* roxo = parcial */
+  .vgvdark { color: #2a2a2a; font-weight: 700; }       /* escuro = terreno inteiro */
 
   /* detalhe */
   tr.detail > td { padding: 12px 10px 14px 40px; text-align: left; background: #fbfbf9; white-space: normal; }
@@ -104,9 +102,12 @@
   <div class="legend">
     <span><b>TPA</b> André (ERG Incorp.)</span>
     <span><b>Grupo A</b> André, Otto, Bernardo</span>
-    <span><b>Otto + Bernardo</b> (sem André)</span>
     <span><b>Grupo B</b> Adolfo, Dominique, Cláudio</span>
     <span><b>ERG Par/Família</b> os 6 sócios</span>
+  </div>
+  <div class="legend">
+    <span><b style="color:#2a2a2a">VGV escuro</b> = terreno inteiro</span>
+    <span><b style="color:var(--vgv)">VGV roxo</b> = parcial (não cobre o terreno todo)</span>
   </div>
 
   <table id="tbl"></table>
@@ -157,11 +158,11 @@ const TERRENOS = [
     ]},
   ]},
   { id:'quadra-6', name:'Quadra 6', vpm2_alvo:2000, lotes:[
-    { nome:'Quadra inteira', dono:'ERG Par/Família', area:4300, vgv:null, props:[] },
+    { nome:'Quadra inteira', dono:'ERG Par/Família', area:4300, vgv:71.8, props:[] },
   ]},
   { id:'gleba-8s', name:'Gleba 8S', vpm2_alvo:2000, lotes:[
     { nome:'Gleba inteira (em divisão)', dono:'ERG Par/Família', area:96784, vgv:1766.5, props:[
-      { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, vgv:null, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
+      { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, vgv:247.5, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'VGV ofertado = R$ 99M ÷ 40% (permuta física) = R$ 247,5M. ⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:11, vgv:175.203, valor:17.76, valorLiquido:15.98, vpm2:1851, areaConsiderada:9598, escopo:'Quadra 5 — Aldir Mentor', date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Cobre só a Quadra 5 (9.598 m²), menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas.' },
     ]},
   ]},
@@ -209,10 +210,10 @@ const ofertaTerreno= t => { let s=0,has=false; for(const l of t.lotes){ const b=
 const vgvOfLote    = l => { const v = l.props.map(p=>p.vgv).filter(x=>x!=null); return v.length?Math.max(...v):null; };
 const vgvOfTerreno = t => { let s=0,has=false; for(const l of t.lotes){ const v=vgvOfLote(l); if(v!=null){s+=v;has=true;} } return has?s:null; };
 
-// escala global das barras de VGV (potencial)
-const MAXVGV = Math.max(...TERRENOS.map(t => vgvTerreno(t) || 0));
-const vgvBar = v => { if(v==null) return '—'; const w = Math.max(2, Math.round(v/MAXVGV*110)); return `<span class="vgvbar" style="width:${w}px"></span><span class="vgvval">${fmtVGV(v)}</span>`; };
-const vgvPlain = v => v==null ? '—' : `<span class="vgvval">${fmtVGV(v)}</span>`;
+const vgvVal  = v => v==null ? '—' : `<span class="vgvval">${fmtVGV(v)}</span>`;   // roxo (parcial)
+const vgvDark = v => v==null ? '—' : `<span class="vgvdark">${fmtVGV(v)}</span>`;  // escuro (terreno inteiro)
+// a oferta cobre o terreno inteiro? (lotes com proposta somam ~toda a área)
+const ofertaCobreTerreno = t => t.lotes.reduce((s,l)=> s + (l.props.length?l.area:0), 0) >= areaTerreno(t) * 0.95;
 
 let open = new Set();
 const rowKey = (ti, li, pi) => `${ti}.${li}.${pi==null?'x':pi}`;
@@ -259,9 +260,9 @@ function propRows(t, l, li, lvl2) {
       <td><span class="chev">▶</span>${p.buyer}${p.escopo?` <span class="who">· ${p.escopo}</span>`:''}</td>
       <td class="hide-sm"></td>
       <td>${fmtN(p.areaConsiderada)} m²</td>
-      <td class="vgvcell"></td>
+      <td></td>
       <td>${fmtM(p.areaConsiderada * t.vpm2_alvo / 1e6)}</td>
-      <td>${vgvPlain(p.vgv)}</td>
+      <td>${vgvVal(p.vgv)}</td>
       <td>${fmtM(liqP(p))}</td>
     </tr>`;
     if (o) h += detailRow(t, p);
@@ -300,9 +301,9 @@ function render() {
       <td>${expandable?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${t.name}</td>
       <td class="hide-sm">${ownerCell}</td>
       <td>${fmtN(areaTerreno(t))} m²</td>
-      <td class="vgvcell">${vgvBar(vgvTerreno(t))}</td>
+      <td>${vgvDark(vgvTerreno(t))}</td>
       <td>${fmtM(pedidoTerreno(t))}</td>
-      <td>${vgvPlain(vgvOfTerreno(t))}</td>
+      <td>${ofertaCobreTerreno(t) ? vgvDark(vgvOfTerreno(t)) : vgvVal(vgvOfTerreno(t))}</td>
       <td>${ofTer!=null ? fmtM(ofTer) : '<span class="semprop">sem proposta</span>'}</td>
     </tr>`;
 
@@ -320,9 +321,9 @@ function render() {
         <td>${hasP?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${l.nome}</td>
         <td class="hide-sm">${chip(l.dono)}</td>
         <td>${fmtN(l.area)} m²</td>
-        <td class="vgvcell">${vgvBar(l.vgv)}</td>
+        <td>${vgvVal(l.vgv)}</td>
         <td>${fmtM(pedidoLote(t,l))}</td>
-        <td>${vgvPlain(vgvOfLote(l))}</td>
+        <td>${vgvVal(vgvOfLote(l))}</td>
         <td>${hasP ? fmtM(bestLote(l)) : '<span class="semprop">sem proposta</span>'}</td>
       </tr>`;
       if (hasP && lOpen) html += propRows(t, l, li, true);
