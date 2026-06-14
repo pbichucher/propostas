@@ -53,12 +53,15 @@
   tr.terreno.clickable { cursor: pointer; }
   tr.terreno.clickable:hover > td { background: #eeeeea; }
 
-  tr.lote { cursor: default; }
-  tr.lote.clickable { cursor: pointer; }
-  tr.lote.clickable:hover > td { background: var(--hover); }
+  tr.lote, tr.prop { cursor: default; }
+  tr.lote.clickable, tr.prop.clickable { cursor: pointer; }
+  tr.lote.clickable:hover > td, tr.prop.clickable:hover > td { background: var(--hover); }
   tr.lote > td:first-child { padding-left: 26px; font-weight: 400; }
-  tr.lote .chev { color: var(--muted); font-size: 9px; display: inline-block; width: 13px; transition: transform .15s; }
-  tr.lote.open .chev { transform: rotate(90deg); }
+  tr.prop > td:first-child { padding-left: 26px; font-weight: 400; }
+  tr.prop.lvl2 > td:first-child { padding-left: 44px; }
+  tr.prop > td { color: #4a4a47; }
+  tr.lote .chev, tr.prop .chev { color: var(--muted); font-size: 9px; display: inline-block; width: 13px; transition: transform .15s; }
+  tr.lote.open .chev, tr.prop.open .chev { transform: rotate(90deg); }
 
   .chip {
     display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 8px;
@@ -128,18 +131,18 @@ const TERRENOS = [
     { nome:'Imóvel inteiro', dono:'TPA', area:2813, vgv:null, props:[] },
   ]},
   { id:'quadra-2-4', name:'Quadra 2,4', vpm2_alvo:3000, lotes:[
-    { nome:'Parte fundo', dono:'Otto + Bernardo', area:6000, vgv:195.0, props:[
+    { nome:'Parte fundo', dono:'Otto + Bernardo', area:6000, vgv:151.822, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:151.822, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Antes chamada "WS Antares". Área a confirmar com croqui.' },
     ]},
-    { nome:'Parte TPA', dono:'TPA', area:2425, vgv:78.8, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:278.7, props:[] },
+    { nome:'Parte TPA', dono:'TPA', area:2425, vgv:61.4, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:217.0, props:[] },
   ]},
   { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2000, lotes:[
-    { nome:'Lotes 2 e 3', dono:'Otto + Bernardo', area:14822, vgv:444.7, props:[
+    { nome:'Lotes 2 e 3', dono:'Otto + Bernardo', area:14822, vgv:290.666, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:290.666, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Ofertado só para as partes do Otto e do Bernardo.' },
     ]},
-    { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:124.6, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:45119, vgv:1353.6, props:[] },
+    { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:81.4, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:45119, vgv:884.8, props:[] },
   ]},
   { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
     { nome:'Lote 1 — Frente Mar', dono:'Grupo A', area:4887.5, vgv:116.48, props:[
@@ -157,7 +160,7 @@ const TERRENOS = [
     { nome:'Quadra inteira', dono:'ERG Par/Família', area:4300, vgv:null, props:[] },
   ]},
   { id:'gleba-8s', name:'Gleba 8S', vpm2_alvo:2000, lotes:[
-    { nome:'Gleba inteira (em divisão)', dono:'ERG Par/Família', area:96784, vgv:660.0, props:[
+    { nome:'Gleba inteira (em divisão)', dono:'ERG Par/Família', area:96784, vgv:1766.5, props:[
       { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, vgv:null, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:11, vgv:175.203, valor:17.76, valorLiquido:15.98, vpm2:1851, areaConsiderada:9598, escopo:'Quadra 5 — Aldir Mentor', date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Cobre só a Quadra 5 (9.598 m²), menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas.' },
     ]},
@@ -215,6 +218,9 @@ let open = new Set();
 const rowKey = (ti, li, pi) => `${ti}.${li}.${pi==null?'x':pi}`;
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
+const COLS = 7;
+const isTPA = t => t.lotes.every(l => l.dono === 'TPA');
+
 function renderTotals() {
   const nProps = TERRENOS.reduce((s,t)=> s + t.lotes.reduce((a,l)=> a + l.props.length, 0), 0);
   const pedido = TERRENOS.reduce((s,t)=> s + pedidoTerreno(t), 0);
@@ -224,15 +230,15 @@ function renderTotals() {
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
     <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
-    <div><span class="lbl">Pedido total</span><span class="val">${fmtM(pedido)}</span></div>
-    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertado)}</span></div>
     <div><span class="lbl">VGV potencial</span><span class="val vgv">${fmtVGV(vgvPot)}</span></div>
-    <div><span class="lbl">VGV ofertado</span><span class="val vgv">${fmtVGV(vgvOf)}</span></div>`;
+    <div><span class="lbl">Pedido total</span><span class="val">${fmtM(pedido)}</span></div>
+    <div><span class="lbl">VGV ofertado</span><span class="val vgv">${fmtVGV(vgvOf)}</span></div>
+    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertado)}</span></div>`;
 }
 
-function detailRow(t, p, colspan) {
+function detailRow(t, p) {
   const vpm2Of = liqP(p) * 1e6 / p.areaConsiderada;
-  return `<tr class="detail"><td colspan="${colspan}">
+  return `<tr class="detail"><td colspan="${COLS}">
     <div class="d-grid">
       <div><div class="lbl">Modelo</div><div class="v">${tipoLabel(p)}</div></div>
       <div><div class="lbl">Área considerada</div><div class="v">${fmtN(p.areaConsiderada)} m²</div></div>
@@ -243,81 +249,83 @@ function detailRow(t, p, colspan) {
   </td></tr>`;
 }
 
+// linhas das construtoras (uma por proposta) sob um lote → expandem no detalhe
+function propRows(t, l, li, lvl2) {
+  let h = '';
+  l.props.forEach((p, pi) => {
+    const k = rowKey(t.id, li, pi);
+    const o = open.has(k);
+    h += `<tr class="prop clickable ${lvl2?'lvl2':''} ${o?'open':''}" onclick="toggle('${k}')">
+      <td><span class="chev">▶</span>${p.buyer}${p.escopo?` <span class="who">· ${p.escopo}</span>`:''}</td>
+      <td class="hide-sm"></td>
+      <td>${fmtN(p.areaConsiderada)} m²</td>
+      <td class="vgvcell"></td>
+      <td>${fmtM(p.areaConsiderada * t.vpm2_alvo / 1e6)}</td>
+      <td>${vgvPlain(p.vgv)}</td>
+      <td>${fmtM(liqP(p))}</td>
+    </tr>`;
+    if (o) h += detailRow(t, p);
+  });
+  return h;
+}
+
 function render() {
   renderTotals();
-  const COLS = 7;
   let html = `<thead><tr>
     <th class="l">Terreno / lote</th>
     <th class="l hide-sm">Proprietário</th>
     <th>Área</th>
-    <th>Pedido</th>
     <th>VGV potencial</th>
+    <th>Pedido</th>
     <th>VGV ofertado</th>
     <th>Oferta líq.</th>
   </tr></thead><tbody>`;
 
-  const ordered = [...TERRENOS].sort((a,b) => (vgvTerreno(b)||0) - (vgvTerreno(a)||0));
+  // ordem: terrenos da TPA por último; dentro de cada grupo, por VGV potencial desc
+  const ordered = [...TERRENOS].sort((a,b) => {
+    if (isTPA(a) !== isTPA(b)) return isTPA(a) ? 1 : -1;
+    return (vgvTerreno(b)||0) - (vgvTerreno(a)||0);
+  });
+
   ordered.forEach((t) => {
     const single   = t.lotes.length === 1;
-    const lote0    = t.lotes[0];
-    const competing= single && lote0.props.length > 1;          // 8S: propostas concorrentes
-    const directDt = single && lote0.props.length === 1;        // XIM/6PE: abre direto no detalhe
-    const hasKids  = !single || competing;                      // terreno mostra sub-linhas
-    const expandable = hasKids || directDt;
+    const hasProps = t.lotes.some(l => l.props.length > 0);
+    const expandable = !single || hasProps;
     const tKey = 'T:'+t.id;
     const tOpen = open.has(tKey);
-
-    // ── linha do terreno ── (fechado: TPA se 100% do André, senão ERG Par/Família)
-    const ownerCell = chip(t.lotes.every(l => l.dono === 'TPA') ? 'TPA' : 'ERG Par/Família');
+    const ownerCell = chip(isTPA(t) ? 'TPA' : 'ERG Par/Família');
     const ofTer = ofertaTerreno(t);
+
     html += `<tr class="terreno ${expandable?'clickable':''} ${tOpen?'open':''}" ${expandable?`onclick="toggle('${tKey}')"`:''}>
       <td>${expandable?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${t.name}</td>
       <td class="hide-sm">${ownerCell}</td>
       <td>${fmtN(areaTerreno(t))} m²</td>
-      <td>${fmtM(pedidoTerreno(t))}</td>
       <td class="vgvcell">${vgvBar(vgvTerreno(t))}</td>
+      <td>${fmtM(pedidoTerreno(t))}</td>
       <td>${vgvPlain(vgvOfTerreno(t))}</td>
       <td>${ofTer!=null ? fmtM(ofTer) : '<span class="semprop">sem proposta</span>'}</td>
     </tr>`;
 
     if (!expandable || !tOpen) return;
 
-    // ── terreno de 1 lote/1 proposta: abre direto no detalhe ──
-    if (directDt) { html += detailRow(t, lote0.props[0], COLS); return; }
+    // terreno de 1 lote: mostra direto as construtoras
+    if (single) { html += propRows(t, t.lotes[0], 0, false); return; }
 
-    // ── sub-linhas ──
+    // terreno com vários lotes: linha de cada lote; lote com proposta abre nas construtoras
     t.lotes.forEach((l, li) => {
-      if (competing) {
-        l.props.forEach((p, pi) => {
-          const k = rowKey(t.id, li, pi);
-          const o = open.has(k);
-          html += `<tr class="lote clickable ${o?'open':''}" onclick="toggle('${k}')">
-            <td><span class="chev">▶</span>${p.buyer} <span class="who">· ${p.escopo||l.nome}</span></td>
-            <td class="hide-sm">${chip(l.dono)}</td>
-            <td>${fmtN(p.areaConsiderada)} m²</td>
-            <td>${fmtM(p.areaConsiderada * t.vpm2_alvo / 1e6)}</td>
-            <td class="vgvcell">${pi===0?vgvBar(l.vgv):''}</td>
-            <td>${vgvPlain(p.vgv)}</td>
-            <td>${fmtM(liqP(p))}</td>
-          </tr>`;
-          if (o) html += detailRow(t, p, COLS);
-        });
-        return;
-      }
-      const p = l.props[0];
-      const k = rowKey(t.id, li, p ? 0 : null);
-      const o = open.has(k);
-      const clickable = !!p;
-      html += `<tr class="lote ${clickable?'clickable':''} ${o?'open':''}" ${clickable?`onclick="toggle('${k}')"`:''}>
-        <td>${clickable?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${l.nome}</td>
+      const hasP = l.props.length > 0;
+      const lKey = 'L:'+t.id+'.'+li;
+      const lOpen = open.has(lKey);
+      html += `<tr class="lote ${hasP?'clickable':''} ${lOpen?'open':''}" ${hasP?`onclick="toggle('${lKey}')"`:''}>
+        <td>${hasP?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${l.nome}</td>
         <td class="hide-sm">${chip(l.dono)}</td>
         <td>${fmtN(l.area)} m²</td>
-        <td>${fmtM(pedidoLote(t,l))}</td>
         <td class="vgvcell">${vgvBar(l.vgv)}</td>
+        <td>${fmtM(pedidoLote(t,l))}</td>
         <td>${vgvPlain(vgvOfLote(l))}</td>
-        <td>${p ? fmtM(liqP(p)) : '<span class="semprop">sem proposta</span>'}</td>
+        <td>${hasP ? fmtM(bestLote(l)) : '<span class="semprop">sem proposta</span>'}</td>
       </tr>`;
-      if (p && o) html += detailRow(t, p, COLS);
+      if (hasP && lOpen) html += propRows(t, l, li, true);
     });
   });
 
