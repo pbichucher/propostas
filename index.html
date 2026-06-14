@@ -228,13 +228,20 @@ function renderTotals() {
   const ofertado = TERRENOS.reduce((s,t)=> s + (ofertaTerreno(t)||0), 0);
   const vgvPot = TERRENOS.reduce((s,t)=> s + (vgvTerreno(t)||0), 0);
   const vgvOf  = TERRENOS.reduce((s,t)=> s + (vgvOfTerreno(t)||0), 0);
+  // VGV potencial sem Grupo B: exclui lotes Grupo B inteiros e metade dos ERG Par/Família (3 de 6 sócios são Grupo B)
+  const vgvSemB = TERRENOS.reduce((s,t)=> s + t.lotes.reduce((a,l)=> {
+    if (!l.vgv || l.dono === 'Grupo B') return a;
+    if (l.dono === 'ERG Par/Família')   return a + l.vgv * 0.5;
+    return a + l.vgv;
+  }, 0), 0);
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
     <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
     <div><span class="lbl">VGV potencial</span><span class="val vgv">${fmtVGV(vgvPot)}</span></div>
     <div><span class="lbl">Pedido total</span><span class="val">${fmtM(pedido)}</span></div>
     <div><span class="lbl">VGV ofertado</span><span class="val vgv">${fmtVGV(vgvOf)}</span></div>
-    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertado)}</span></div>`;
+    <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertado)}</span></div>
+    <div><span class="lbl">VGV pot. s/ Grupo B</span><span class="val vgv">${fmtVGV(vgvSemB)}</span></div>`;
 }
 
 function detailRow(t, p) {
