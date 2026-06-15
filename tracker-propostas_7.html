@@ -124,14 +124,14 @@ const TERRENOS = [
     { nome:'Fundo', dono:'Grupo A', area:6000, vgv:151.822, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:151.822, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Proposta só para a parte do fundo (inteira do Grupo A). Antes chamada "WS Antares".' },
     ]},
-    { nome:'Frente', dono:'Grupo A', area:2500, vgv:63.3, props:[] },
+    { nome:'Frente', dono:'Grupo A', area:2500, vpm2:3300, vgv:69.6, props:[] },
     { nome:'Parte Grupo B', dono:'Grupo B', area:8500, vgv:215.1, props:[] },
   ]},
   { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2500, lotes:[
     { nome:'Otto + Bernardo (Lotes 2 e 3)', dono:'Otto + Bernardo', area:18974, vgv:372.1, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:290.666, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Riva ofertou só 14.822 m² dos 18.974 m² do Otto + Bernardo.' },
     ]},
-    { nome:'Posto Washington Soares', dono:'TPA', area:4200, vpm2:3250, vgv:107.1, props:[] },
+    { nome:'Posto Washington Soares', dono:'TPA', area:4200, vpm2:3575, vgv:117.8, props:[] },
     { nome:'Parte Grupo B', dono:'Grupo B', area:40919, vgv:802.5, props:[] },
   ]},
   { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
@@ -151,7 +151,7 @@ const TERRENOS = [
   ]},
   { id:'gleba-8s', name:'Gleba 8S', vpm2_alvo:2000, lotes:[
     { nome:'Gleba inteira (em divisão)', dono:'ERG Par/Família', area:96784, vgv:1766.5, props:[
-      { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, vgv:247.5, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'VGV ofertado = R$ 99M ÷ 40% (permuta física) = R$ 247,5M. ⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
+      { buyer:'Construtora Duplo / Idibra', tipo:'permuta-fisica', permutaPct:40, vgv:825.0, valor:99.0, valorLiquido:null, vpm2:1200, areaConsiderada:82500, escopo:'Gleba inteira', date:'2026-06-01', validade:'2026-07-01', pagamento:'Recebe 40% em unidades prontas. PCV 180 dias, lançamento 24+12 meses.', notes:'VGV ofertado = R$ 10.000/m² × 82.500 m² = R$ 825M. ⚠️ Vendedor paga 2% de corretagem (~R$ 2,0M). Via André Romcy / NUAAR.' },
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:11, vgv:175.203, valor:17.76, valorLiquido:15.98, vpm2:1851, areaConsiderada:9598, escopo:'Quadra 5 — Aldir Mentor', date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Cobre só a Quadra 5 (9.598 m²), menor que a cota de um sócio (16.130 m²). ⚠️ PDF da Riva traz "Quadra 5" nos valores e "Quadra 4" nas premissas.' },
     ]},
   ]},
@@ -205,7 +205,8 @@ const ofAreaTerreno= t => { let s=0,has=false; for(const l of t.lotes){ const a=
 
 const vgvTxt = v => v==null ? '—' : fmtVGV(v);
 
-let open = new Set();
+// começa com todos os terrenos abertos (mostra lotes/ofertas dentro de cada quadra)
+let open = new Set(TERRENOS.map(t => 'T:'+t.id));
 const rowKey = (ti, li, pi) => `${ti}.${li}.${pi==null?'x':pi}`;
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
