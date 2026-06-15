@@ -125,9 +125,6 @@ const TERRENOS = [
   { id:'restaurante', name:'Santos Dumont 3600', vpm2_alvo:9371, lotes:[
     { nome:'Imóvel inteiro', dono:'TPA', area:875, vgv:63.0, props:[] },
   ]},
-  { id:'posto-ws', name:'Posto Washington Soares', vpm2_alvo:3000, lotes:[
-    { nome:'Imóvel inteiro', dono:'TPA', area:4200, vgv:106.3, props:[] },
-  ]},
   { id:'amaralina', name:'Quadra Amaralina', vpm2_alvo:3000, lotes:[
     { nome:'Imóvel inteiro', dono:'TPA', area:2813, vgv:71.2, props:[] },
   ]},
@@ -138,12 +135,12 @@ const TERRENOS = [
     { nome:'Parte TPA', dono:'TPA', area:2425, vgv:78.8, props:[] },
     { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:278.7, props:[] },
   ]},
-  { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2000, lotes:[
-    { nome:'Lotes 2 e 3', dono:'Otto + Bernardo', area:14822, vgv:444.7, props:[
-      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:290.666, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Ofertado só para as partes do Otto e do Bernardo.' },
+  { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2500, lotes:[
+    { nome:'Otto + Bernardo (Lotes 2 e 3)', dono:'Otto + Bernardo', area:18974, vgv:569.2, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:290.666, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Riva ofertou só 14.822 m² dos 18.974 m² do Otto + Bernardo.' },
     ]},
-    { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:124.6, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:45119, vgv:1353.6, props:[] },
+    { nome:'Posto Washington Soares', dono:'TPA', area:4200, vpm2:3250, vgv:163.8, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:40919, vgv:1227.6, props:[] },
   ]},
   { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
     { nome:'Lote 1 — Frente Mar', dono:'Grupo A', area:4887.5, vgv:116.48, props:[
@@ -200,7 +197,7 @@ const tipoLabel = p => (p.tipo==='permuta' ? `Permuta financeira ${String(p.perm
   : p.tipo==='permuta-fisica' ? `Permuta física ${String(p.permutaPct).replace('.',',')}%`
   : p.tipo==='venda' ? 'Venda' : 'Outro');
 
-const pedidoLote   = (t, l) => l.area * t.vpm2_alvo / 1e6;
+const pedidoLote   = (t, l) => l.area * (l.vpm2 || t.vpm2_alvo) / 1e6;
 const pedidoTerreno= t => t.lotes.reduce((s,l)=> s + pedidoLote(t,l), 0);
 const areaTerreno  = t => t.lotes.reduce((s,l)=> s + l.area, 0);
 const vgvTerreno   = t => { const s = t.lotes.reduce((a,l)=> a + (l.vgv||0), 0); return s || null; };
@@ -270,7 +267,7 @@ function propRows(t, l, li, lvl2) {
       <td class="hide-sm"></td>
       <td>${fmtN(p.areaConsiderada)} m²</td>
       <td>${vgvVal(vgvPed)}</td>
-      <td>${fmtM(p.areaConsiderada * t.vpm2_alvo / 1e6)}</td>
+      <td>${fmtM(p.areaConsiderada * (l.vpm2 || t.vpm2_alvo) / 1e6)}</td>
       <td>${vgvVal(p.vgv)}</td>
       <td>${fmtM(liqP(p))}</td>
     </tr>`;
