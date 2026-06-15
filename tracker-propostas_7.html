@@ -132,18 +132,18 @@ const TERRENOS = [
     { nome:'Imóvel inteiro', dono:'TPA', area:2813, vgv:71.2, props:[] },
   ]},
   { id:'quadra-2-4', name:'Quadra 2,4', vpm2_alvo:3000, lotes:[
-    { nome:'Parte fundo', dono:'Otto + Bernardo', area:6000, vgv:151.822, props:[
+    { nome:'Parte fundo', dono:'Otto + Bernardo', area:6000, vgv:195.0, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:151.822, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Antes chamada "WS Antares". Área a confirmar com croqui.' },
     ]},
-    { nome:'Parte TPA', dono:'TPA', area:2425, vgv:61.4, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:217.0, props:[] },
+    { nome:'Parte TPA', dono:'TPA', area:2425, vgv:78.8, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:278.7, props:[] },
   ]},
   { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2000, lotes:[
-    { nome:'Lotes 2 e 3', dono:'Otto + Bernardo', area:14822, vgv:290.666, props:[
+    { nome:'Lotes 2 e 3', dono:'Otto + Bernardo', area:14822, vgv:444.7, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:290.666, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Ofertado só para as partes do Otto e do Bernardo.' },
     ]},
-    { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:81.4, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:45119, vgv:884.8, props:[] },
+    { nome:'Parte André (TPA)', dono:'TPA', area:4152, vgv:124.6, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:45119, vgv:1353.6, props:[] },
   ]},
   { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
     { nome:'Lote 1 — Frente Mar', dono:'Grupo A', area:4887.5, vgv:116.48, props:[
@@ -260,14 +260,16 @@ function detailRow(t, p) {
 // linhas das construtoras (uma por proposta) sob um lote → expandem no detalhe
 function propRows(t, l, li, lvl2) {
   let h = '';
+  const ratePed = (l.vgv && l.area) ? l.vgv / l.area : null;   // VGV pedido por m² do lote
   l.props.forEach((p, pi) => {
     const k = rowKey(t.id, li, pi);
     const o = open.has(k);
+    const vgvPed = ratePed != null ? ratePed * p.areaConsiderada : null;
     h += `<tr class="prop clickable ${lvl2?'lvl2':''} ${o?'open':''}" onclick="toggle('${k}')">
       <td><span class="chev">▶</span>${p.buyer}${p.escopo?` <span class="who">· ${p.escopo}</span>`:''}</td>
       <td class="hide-sm"></td>
       <td>${fmtN(p.areaConsiderada)} m²</td>
-      <td></td>
+      <td>${vgvVal(vgvPed)}</td>
       <td>${fmtM(p.areaConsiderada * t.vpm2_alvo / 1e6)}</td>
       <td>${vgvVal(p.vgv)}</td>
       <td>${fmtM(liqP(p))}</td>
