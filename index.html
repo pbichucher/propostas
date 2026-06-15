@@ -29,7 +29,6 @@
   .totals { display: flex; gap: 38px; margin: 28px 0 14px; flex-wrap: wrap; }
   .totals .lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
   .totals .val { display: block; font-size: 19px; font-weight: 600; margin-top: 2px; }
-  .totals .val.vgv { color: var(--vgv); }
 
   .legend { font-size: 11.5px; color: var(--muted); margin: 0 0 26px; display: flex; gap: 16px; flex-wrap: wrap; }
   .legend b { color: var(--text); font-weight: 600; }
@@ -70,9 +69,6 @@
   .who { color: var(--muted); font-weight: 400; }
   .semprop { color: var(--muted); font-style: italic; font-size: 12.5px; }
 
-  /* VGV cores */
-  .vgvval  { color: var(--vgv); font-weight: 600; }   /* roxo = parcial */
-  .vgvdark { color: #2a2a2a; font-weight: 700; }       /* escuro = terreno inteiro */
 
   /* detalhe */
   tr.detail > td { padding: 12px 10px 14px 40px; text-align: left; background: #fbfbf9; white-space: normal; }
@@ -105,10 +101,6 @@
     <span><b>Grupo B</b> Adolfo, Dominique, Cláudio</span>
     <span><b>ERG Par/Família</b> os 6 sócios</span>
   </div>
-  <div class="legend">
-    <span><b style="color:#2a2a2a">VGV escuro</b> = terreno inteiro</span>
-    <span><b style="color:var(--vgv)">VGV roxo</b> = parcial (não cobre o terreno todo)</span>
-  </div>
 
   <table id="tbl"></table>
 </div>
@@ -129,18 +121,18 @@ const TERRENOS = [
     { nome:'Imóvel inteiro', dono:'TPA', area:2813, vgv:71.2, props:[] },
   ]},
   { id:'quadra-2-4', name:'Quadra 2,4', vpm2_alvo:3000, lotes:[
-    { nome:'Parte fundo', dono:'Otto + Bernardo', area:6000, vgv:195.0, props:[
-      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:151.822, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Antes chamada "WS Antares". Área a confirmar com croqui.' },
+    { nome:'Fundo', dono:'Grupo A', area:6000, vgv:151.822, props:[
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:151.822, valor:17.98, valorLiquido:16.18, vpm2:2997, areaConsiderada:6000, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Proposta só para a parte do fundo (inteira do Grupo A). Antes chamada "WS Antares".' },
     ]},
-    { nome:'Parte TPA', dono:'TPA', area:2425, vgv:78.8, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:8575, vgv:278.7, props:[] },
+    { nome:'Frente', dono:'Grupo A', area:2500, vgv:63.3, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:8500, vgv:215.1, props:[] },
   ]},
   { id:'sitio-butanta', name:'Sítio Butantã', vpm2_alvo:2500, lotes:[
-    { nome:'Otto + Bernardo (Lotes 2 e 3)', dono:'Otto + Bernardo', area:18974, vgv:569.2, props:[
+    { nome:'Otto + Bernardo (Lotes 2 e 3)', dono:'Otto + Bernardo', area:18974, vgv:372.1, props:[
       { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:14, vgv:290.666, valor:44.53, valorLiquido:40.08, vpm2:3004, areaConsiderada:14822, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido. Riva ofertou só 14.822 m² dos 18.974 m² do Otto + Bernardo.' },
     ]},
-    { nome:'Posto Washington Soares', dono:'TPA', area:4200, vpm2:3250, vgv:163.8, props:[] },
-    { nome:'Parte Grupo B', dono:'Grupo B', area:40919, vgv:1227.6, props:[] },
+    { nome:'Posto Washington Soares', dono:'TPA', area:4200, vpm2:3250, vgv:107.1, props:[] },
+    { nome:'Parte Grupo B', dono:'Grupo B', area:40919, vgv:802.5, props:[] },
   ]},
   { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
     { nome:'Lote 1 — Frente Mar', dono:'Grupo A', area:4887.5, vgv:116.48, props:[
@@ -201,23 +193,25 @@ const pedidoLote   = (t, l) => l.area * (l.vpm2 || t.vpm2_alvo) / 1e6;
 const pedidoTerreno= t => t.lotes.reduce((s,l)=> s + pedidoLote(t,l), 0);
 const areaTerreno  = t => t.lotes.reduce((s,l)=> s + l.area, 0);
 const vgvTerreno   = t => { const s = t.lotes.reduce((a,l)=> a + (l.vgv||0), 0); return s || null; };
-const bestLote     = l => l.props.length ? Math.max(...l.props.map(liqP)) : null;
+const bestProp     = l => l.props.length ? l.props.reduce((a,b)=> liqP(b)>liqP(a)?b:a) : null;
+const bestLote     = l => { const p = bestProp(l); return p ? liqP(p) : null; };
 const ofertaTerreno= t => { let s=0,has=false; for(const l of t.lotes){ const b=bestLote(l); if(b!=null){s+=b;has=true;} } return has?s:null; };
 // VGV ofertado: o que a proposta calculou (por lote = maior; por terreno = soma dos lotes)
 const vgvOfLote    = l => { const v = l.props.map(p=>p.vgv).filter(x=>x!=null); return v.length?Math.max(...v):null; };
 const vgvOfTerreno = t => { let s=0,has=false; for(const l of t.lotes){ const v=vgvOfLote(l); if(v!=null){s+=v;has=true;} } return has?s:null; };
+// área da oferta (a considerada pela melhor proposta)
+const ofAreaLote   = l => { const p = bestProp(l); return p ? p.areaConsiderada : null; };
+const ofAreaTerreno= t => { let s=0,has=false; for(const l of t.lotes){ const a=ofAreaLote(l); if(a!=null){s+=a;has=true;} } return has?s:null; };
 
-const vgvVal  = v => v==null ? '—' : `<span class="vgvval">${fmtVGV(v)}</span>`;   // roxo (parcial)
-const vgvDark = v => v==null ? '—' : `<span class="vgvdark">${fmtVGV(v)}</span>`;  // escuro (terreno inteiro)
-// a oferta cobre o terreno inteiro? (lotes com proposta somam ~toda a área)
-const ofertaCobreTerreno = t => t.lotes.reduce((s,l)=> s + (l.props.length?l.area:0), 0) >= areaTerreno(t) * 0.95;
+const vgvTxt = v => v==null ? '—' : fmtVGV(v);
 
 let open = new Set();
 const rowKey = (ti, li, pi) => `${ti}.${li}.${pi==null?'x':pi}`;
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
-const COLS = 7;
+const COLS = 8;
 const isTPA = t => t.lotes.every(l => l.dono === 'TPA');
+const fmtArea = a => a!=null ? fmtN(a)+' m²' : '';
 
 function renderTotals() {
   const nProps = TERRENOS.reduce((s,t)=> s + t.lotes.reduce((a,l)=> a + l.props.length, 0), 0);
@@ -234,11 +228,11 @@ function renderTotals() {
   document.getElementById('totals').innerHTML = `
     <div><span class="lbl">Terrenos</span><span class="val">${TERRENOS.length}</span></div>
     <div><span class="lbl">Propostas</span><span class="val">${nProps}</span></div>
-    <div><span class="lbl">VGV potencial</span><span class="val vgv">${fmtVGV(vgvPot)}</span></div>
-    <div><span class="lbl">Pedido total</span><span class="val">${fmtM(pedido)}</span></div>
-    <div><span class="lbl">VGV ofertado</span><span class="val vgv">${fmtVGV(vgvOf)}</span></div>
+    <div><span class="lbl">VGV potencial</span><span class="val">${fmtVGV(vgvPot)}</span></div>
+    <div><span class="lbl">Valor pedido</span><span class="val">${fmtM(pedido)}</span></div>
+    <div><span class="lbl">VGV ofertado</span><span class="val">${fmtVGV(vgvOf)}</span></div>
     <div><span class="lbl">Ofertado (líq.)</span><span class="val">${fmtM(ofertado)}</span></div>
-    <div><span class="lbl">VGV pot. s/ Grupo B</span><span class="val vgv">${fmtVGV(vgvSemB)}</span></div>`;
+    <div><span class="lbl">VGV pot. s/ Grupo B</span><span class="val">${fmtVGV(vgvSemB)}</span></div>`;
 }
 
 function detailRow(t, p) {
@@ -265,10 +259,11 @@ function propRows(t, l, li, lvl2) {
     h += `<tr class="prop clickable ${lvl2?'lvl2':''} ${o?'open':''}" onclick="toggle('${k}')">
       <td><span class="chev">▶</span>${p.buyer}${p.escopo?` <span class="who">· ${p.escopo}</span>`:''}</td>
       <td class="hide-sm"></td>
-      <td>${fmtN(p.areaConsiderada)} m²</td>
-      <td>${vgvVal(vgvPed)}</td>
+      <td></td>
+      <td>${vgvTxt(vgvPed)}</td>
       <td>${fmtM(p.areaConsiderada * (l.vpm2 || t.vpm2_alvo) / 1e6)}</td>
-      <td>${vgvVal(p.vgv)}</td>
+      <td>${fmtArea(p.areaConsiderada)}</td>
+      <td>${vgvTxt(p.vgv)}</td>
       <td>${fmtM(liqP(p))}</td>
     </tr>`;
     if (o) h += detailRow(t, p);
@@ -283,7 +278,8 @@ function render() {
     <th class="l hide-sm">Proprietário</th>
     <th>Área</th>
     <th>VGV potencial</th>
-    <th>Pedido</th>
+    <th>Valor pedido</th>
+    <th>Área da oferta</th>
     <th>VGV ofertado</th>
     <th>Oferta líq.</th>
   </tr></thead><tbody>`;
@@ -307,9 +303,10 @@ function render() {
       <td>${expandable?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${t.name}</td>
       <td class="hide-sm">${ownerCell}</td>
       <td>${fmtN(areaTerreno(t))} m²</td>
-      <td>${vgvDark(vgvTerreno(t))}</td>
+      <td>${vgvTxt(vgvTerreno(t))}</td>
       <td>${fmtM(pedidoTerreno(t))}</td>
-      <td>${ofertaCobreTerreno(t) ? vgvDark(vgvOfTerreno(t)) : vgvVal(vgvOfTerreno(t))}</td>
+      <td>${fmtArea(ofAreaTerreno(t))}</td>
+      <td>${vgvTxt(vgvOfTerreno(t))}</td>
       <td>${ofTer!=null ? fmtM(ofTer) : '<span class="semprop">sem proposta</span>'}</td>
     </tr>`;
 
@@ -327,9 +324,10 @@ function render() {
         <td>${hasP?'<span class="chev">▶</span>':'<span style="display:inline-block;width:13px"></span>'}${l.nome}</td>
         <td class="hide-sm">${chip(l.dono)}</td>
         <td>${fmtN(l.area)} m²</td>
-        <td>${vgvVal(l.vgv)}</td>
+        <td>${vgvTxt(l.vgv)}</td>
         <td>${fmtM(pedidoLote(t,l))}</td>
-        <td>${vgvVal(vgvOfLote(l))}</td>
+        <td>${fmtArea(ofAreaLote(l))}</td>
+        <td>${vgvTxt(vgvOfLote(l))}</td>
         <td>${hasP ? fmtM(bestLote(l)) : '<span class="semprop">sem proposta</span>'}</td>
       </tr>`;
       if (hasP && lOpen) html += propRows(t, l, li, true);
