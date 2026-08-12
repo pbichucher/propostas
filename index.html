@@ -463,25 +463,29 @@ function computeFlow(p, idx){
 }
 
 function drawChart(f, color, maxBar, maxCum){
-  const W=920, H=250, ml=46, mr=44, mt=16, mb=32;
+  const W=920, H=270, ml=52, mr=54, mt=24, mb=30;
   const pw=W-ml-mr, ph=H-mt-mb, step=pw/HORIZON;
   const xM = m => ml + (m/HORIZON)*pw;
   const yBar = v => mt + ph*(1 - v/maxBar);
   const yCum = v => mt + ph*(1 - v/maxCum);
-  const bw = Math.max(2.4, step*0.5);
+  const bw = Math.max(2.6, step*0.55);
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="inherit">`;
-  const ticks=3;
-  for(let i=0;i<=ticks;i++){ const v=maxBar*i/ticks, y=yBar(v);
+  const ticks=4;
+  // grade + eixo Y esquerdo (barras) + eixo Y direito (saldo, na cor da linha)
+  for(let i=0;i<=ticks;i++){ const y = mt + ph*(1 - i/ticks);
     s+=`<line x1="${ml}" y1="${y.toFixed(1)}" x2="${ml+pw}" y2="${y.toFixed(1)}" stroke="#eee"/>`;
-    s+=`<text x="${ml-7}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#8a8a86">${v.toFixed(1)}</text>`; }
+    s+=`<text x="${ml-7}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#8a8a86">${(maxBar*i/ticks).toFixed(1)}</text>`;
+    s+=`<text x="${ml+pw+7}" y="${(y+3).toFixed(1)}" text-anchor="start" font-size="9.5" fill="${color}">${(maxCum*i/ticks).toFixed(0)}</text>`; }
+  s+=`<text x="${ml-7}" y="${(mt-10).toFixed(1)}" text-anchor="end" font-size="9" fill="#8a8a86">barras: R$ M/mês</text>`;
+  s+=`<text x="${(ml+pw+7).toFixed(1)}" y="${(mt-10).toFixed(1)}" text-anchor="start" font-size="9" fill="${color}">linha: saldo R$ M</text>`;
   ETAPAS.forEach(e=>{ const x=xM(e.m);
     s+=`<line x1="${x.toFixed(1)}" y1="${mt}" x2="${x.toFixed(1)}" y2="${mt+ph}" stroke="#e2e2dd" stroke-dasharray="3 3"/>`; });
   for(let m=0;m<=HORIZON;m+=12){ const x=xM(m);
-    s+=`<text x="${x.toFixed(1)}" y="${mt+ph+15}" text-anchor="middle" font-size="9.5" fill="#8a8a86">mês ${m}</text>`; }
+    s+=`<text x="${x.toFixed(1)}" y="${(mt+ph+14).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="#8a8a86">mês ${m}</text>`; }
   for(let m=0;m<=HORIZON;m++){ if(f.nominal[m]>1e-9){ const h=ph*(f.nominal[m]/maxBar);
     s+=`<rect x="${(xM(m)-bw/2).toFixed(1)}" y="${yBar(f.nominal[m]).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.5"/>`; } }
   let d=''; for(let m=0;m<=HORIZON;m++) d+=(m?'L':'M')+xM(m).toFixed(1)+' '+yCum(f.bal[m]).toFixed(1)+' ';
-  s+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  s+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2.2"/>`;
   s+=`<text x="${(xM(HORIZON)-3).toFixed(1)}" y="${(yCum(f.bal[HORIZON])-6).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="${color}">${fmtM(f.bal[HORIZON])}</text>`;
   return s + `</svg>`;
 }
@@ -525,9 +529,9 @@ function renderComparador(){
       <h3><span class="num" style="background:${color}">${num}</span>${p.buyer} <span class="tag">${tipoLabel(p)}</span></h3>
       <div class="prop-terms">
         <div><span class="lbl">VGV ofertado</span><span class="val">${fmtVGV(p.vgv)}</span></div>
-        <div><span class="lbl">Valor da proposta</span><span class="val">${fmtM(p.valor)}</span></div>
-        <div><span class="lbl">Total recebido</span><span class="val">${fmtM(f.totN)}</span></div>
-        <div><span class="lbl">Reinvestido · ${reinvLbl}</span><span class="val" style="color:${color}">${fmtM(f.totR)}${isMax?`<span class="best" style="background:${color}">maior</span>`:''}</span></div>
+        <div><span class="lbl">1 · Valor da proposta</span><span class="val">${fmtM(p.valor)}</span></div>
+        <div><span class="lbl">2 · Corrigido por IPCA</span><span class="val">${fmtM(f.totN)}</span></div>
+        <div><span class="lbl">3 · Reinvestido · ${reinvLbl}</span><span class="val" style="color:${color}">${fmtM(f.totR)}${isMax?`<span class="best" style="background:${color}">maior</span>`:''}</span></div>
       </div>
       <div class="prop-chart">${drawChart(f,color,maxBar,maxCum)}</div>
       <div class="chart-cap">Barras: recebido no mês · Linha: saldo reinvestido, evolui até o mês 60 (chega a ${fmtM(f.totR)})</div>
