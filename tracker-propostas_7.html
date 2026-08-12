@@ -462,28 +462,54 @@ function computeFlow(p, idx){
   return { nominal, bal, totN: nominal.reduce((a,b)=>a+b,0), totR: bal[HORIZON] };
 }
 
-function drawChart(f, color, maxBar, maxCum){
-  const W=920, H=270, ml=52, mr=54, mt=24, mb=30;
+// escala das barras: corta os outliers (escritura, repasse) p/ as barrinhas ficarem visíveis
+function barCap(vals){
+  const nz = vals.filter(v=>v>1e-9).sort((a,b)=>a-b);
+  if(!nz.length) return { cap:1e-6, broken:false };
+  const med = nz[Math.floor(nz.length/2)];
+  let normalMax = nz[0];
+  for(const v of nz) if(v <= med*3.5) normalMax = v;   // maior barra "normal" (fora os saltos)
+  const max = nz[nz.length-1];
+  if(max <= normalMax*1.2) return { cap:max*1.08, broken:false };
+  return { cap:normalMax*1.25, broken:true };
+}
+
+function drawChart(f, color, maxCum){
+  const W=920, H=270, ml=52, mr=54, mt=26, mb=30;
   const pw=W-ml-mr, ph=H-mt-mb, step=pw/HORIZON;
   const xM = m => ml + (m/HORIZON)*pw;
-  const yBar = v => mt + ph*(1 - v/maxBar);
+  const { cap, broken } = barCap(f.nominal);
   const yCum = v => mt + ph*(1 - v/maxCum);
   const bw = Math.max(2.6, step*0.55);
+  const capTop = mt + 13;               // topo visual das barras cortadas
+  const brkY   = mt + ph*0.46;          // altura do // de quebra
+  const fmt1 = v => v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="inherit">`;
   const ticks=4;
-  // grade + eixo Y esquerdo (barras) + eixo Y direito (saldo, na cor da linha)
+  // grade + eixo Y esquerdo (barras, escala cortada) + eixo Y direito (saldo, cor da linha)
   for(let i=0;i<=ticks;i++){ const y = mt + ph*(1 - i/ticks);
     s+=`<line x1="${ml}" y1="${y.toFixed(1)}" x2="${ml+pw}" y2="${y.toFixed(1)}" stroke="#eee"/>`;
-    s+=`<text x="${ml-7}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#8a8a86">${(maxBar*i/ticks).toFixed(1)}</text>`;
+    s+=`<text x="${ml-7}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#8a8a86">${fmt1(cap*i/ticks)}</text>`;
     s+=`<text x="${ml+pw+7}" y="${(y+3).toFixed(1)}" text-anchor="start" font-size="9.5" fill="${color}">${(maxCum*i/ticks).toFixed(0)}</text>`; }
-  s+=`<text x="${ml-7}" y="${(mt-10).toFixed(1)}" text-anchor="end" font-size="9" fill="#8a8a86">barras: R$ M/mês</text>`;
-  s+=`<text x="${(ml+pw+7).toFixed(1)}" y="${(mt-10).toFixed(1)}" text-anchor="start" font-size="9" fill="${color}">linha: saldo R$ M</text>`;
+  s+=`<text x="2" y="${(mt-11).toFixed(1)}" text-anchor="start" font-size="9" fill="#8a8a86">barras R$/mês${broken?' //':''}</text>`;
+  s+=`<text x="${(W-2).toFixed(1)}" y="${(mt-11).toFixed(1)}" text-anchor="end" font-size="9" fill="${color}">linha: saldo R$ M</text>`;
   ETAPAS.forEach(e=>{ const x=xM(e.m);
     s+=`<line x1="${x.toFixed(1)}" y1="${mt}" x2="${x.toFixed(1)}" y2="${mt+ph}" stroke="#e2e2dd" stroke-dasharray="3 3"/>`; });
   for(let m=0;m<=HORIZON;m+=12){ const x=xM(m);
     s+=`<text x="${x.toFixed(1)}" y="${(mt+ph+14).toFixed(1)}" text-anchor="middle" font-size="9.5" fill="#8a8a86">mês ${m}</text>`; }
-  for(let m=0;m<=HORIZON;m++){ if(f.nominal[m]>1e-9){ const h=ph*(f.nominal[m]/maxBar);
-    s+=`<rect x="${(xM(m)-bw/2).toFixed(1)}" y="${yBar(f.nominal[m]).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.5"/>`; } }
+  for(let m=0;m<=HORIZON;m++){ const v=f.nominal[m]; if(v<=1e-9) continue;
+    const bx = xM(m)-bw/2;
+    if(broken && v>cap){                 // barra cortada: sobe até o topo, com // e o valor real em cima
+      s+=`<rect x="${bx.toFixed(1)}" y="${capTop.toFixed(1)}" width="${bw.toFixed(1)}" height="${(mt+ph-capTop).toFixed(1)}" fill="${color}" opacity="0.5"/>`;
+      s+=`<rect x="${(bx-1).toFixed(1)}" y="${(brkY-4).toFixed(1)}" width="${(bw+2).toFixed(1)}" height="8" fill="#fdfdfc"/>`;
+      s+=`<line x1="${(bx-1).toFixed(1)}" y1="${(brkY+4).toFixed(1)}" x2="${(bx+bw*0.6).toFixed(1)}" y2="${(brkY-4).toFixed(1)}" stroke="${color}" stroke-width="1.2"/>`;
+      s+=`<line x1="${(bx+bw*0.4).toFixed(1)}" y1="${(brkY+4).toFixed(1)}" x2="${(bx+bw+1).toFixed(1)}" y2="${(brkY-4).toFixed(1)}" stroke="${color}" stroke-width="1.2"/>`;
+      s+=`<text x="${xM(m).toFixed(1)}" y="${(capTop-3).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="700" fill="${color}">${fmt1(v)}</text>`;
+    } else {
+      const h=ph*(Math.min(v,cap)/cap);
+      s+=`<rect x="${bx.toFixed(1)}" y="${(mt+ph-h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.5"/>`;
+    }
+  }
   let d=''; for(let m=0;m<=HORIZON;m++) d+=(m?'L':'M')+xM(m).toFixed(1)+' '+yCum(f.bal[m]).toFixed(1)+' ';
   s+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2.2"/>`;
   s+=`<text x="${(xM(HORIZON)-3).toFixed(1)}" y="${(yCum(f.bal[HORIZON])-6).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="${color}">${fmtM(f.bal[HORIZON])}</text>`;
@@ -508,7 +534,6 @@ function renderComparador(){
   if(CMP.a===CMP.b) CMP.b = (CMP.a+1)%N;
   const p1=cur.l.props[CMP.a], p2=cur.l.props[CMP.b];
   const f1=computeFlow(p1,CMP.idx), f2=computeFlow(p2,CMP.idx);
-  const maxBar = Math.max(1e-6, ...f1.nominal, ...f2.nominal);
   const maxCum = Math.max(1e-6, f1.bal[HORIZON], f2.bal[HORIZON]);
   const max1 = f1.totR >= f2.totR;
   const reinvLbl = CMP.idx==='Dólar' ? 'Dólar + 6%' : CMP.idx;
@@ -533,7 +558,7 @@ function renderComparador(){
         <div><span class="lbl">2 · Corrigido por IPCA</span><span class="val">${fmtM(f.totN)}</span></div>
         <div><span class="lbl">3 · Reinvestido · ${reinvLbl}</span><span class="val" style="color:${color}">${fmtM(f.totR)}${isMax?`<span class="best" style="background:${color}">maior</span>`:''}</span></div>
       </div>
-      <div class="prop-chart">${drawChart(f,color,maxBar,maxCum)}</div>
+      <div class="prop-chart">${drawChart(f,color,maxCum)}</div>
       <div class="chart-cap">Barras: recebido no mês · Linha: saldo reinvestido, evolui até o mês 60 (chega a ${fmtM(f.totR)})</div>
     </div>`;
 
