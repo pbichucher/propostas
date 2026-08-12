@@ -93,37 +93,43 @@
   .nav button.active { color: var(--text); border-color: var(--text); background: #fff; }
 
   /* comparador */
-  .cmp-controls { display: flex; gap: 14px 20px; flex-wrap: wrap; align-items: flex-end; margin: 6px 0 18px; }
+  .cmp-controls { display: flex; gap: 14px 18px; flex-wrap: wrap; align-items: flex-end; margin: 6px 0 14px; }
   .cmp-field { display: flex; flex-direction: column; gap: 4px; }
   .cmp-field label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
   .cmp-field select { font: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid var(--line);
     border-radius: 8px; background: #fff; color: var(--text); min-width: 170px; }
-  .cmp-check { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text); padding-bottom: 8px; }
 
-  .stepper { display: flex; flex-wrap: wrap; margin: 4px 0 22px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .step { flex: 1 1 0; min-width: 120px; padding: 9px 13px; border-right: 1px solid var(--line); }
+  .sales-box { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; }
+  .sales-box.off { opacity: .4; }
+  .sales-head { font-size: 12.5px; font-weight: 600; margin-bottom: 9px; }
+  .sales-head .muted { font-weight: 400; }
+  .sales-input { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .sales-input .yr { display: flex; flex-direction: column; gap: 3px; }
+  .sales-input .yr label { font-size: 10.5px; color: var(--muted); }
+  .sales-input .yr .mrange { color: #b7b7b2; }
+  .sales-input input { width: 62px; font: inherit; font-size: 13px; padding: 6px 8px;
+    border: 1px solid var(--line); border-radius: 7px; text-align: right; }
+  .sales-sum { font-size: 12px; color: var(--muted); padding-bottom: 7px; }
+  .sales-sum.bad { color: var(--warn); font-weight: 600; }
+
+  .stepper { display: flex; flex-wrap: wrap; margin: 0 0 18px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .step { flex: 1 1 0; min-width: 96px; padding: 8px 12px; border-right: 1px solid var(--line); }
   .step:last-child { border-right: none; }
   .step .m { font-size: 10.5px; color: var(--muted); }
-  .step .n { font-size: 12.5px; font-weight: 600; margin-top: 2px; letter-spacing: -0.01em; }
+  .step .n { font-size: 12.5px; font-weight: 600; margin-top: 1px; }
 
-  .cmp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; }
-  .cmp-card { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
-  .cmp-card h4 { font-size: 14px; font-weight: 650; display: flex; align-items: center; gap: 8px; }
-  .cmp-card .swatch { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
-  .cmp-card .row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px;
-    margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); }
-  .cmp-card .row .k { color: var(--muted); }
-  .cmp-card .row .v { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
-  .cmp-card .row .v.big { font-size: 19px; }
-
-  .cmp-chart { border: 1px solid var(--line); border-radius: 12px; padding: 14px 12px; overflow-x: auto; }
-  .cmp-chart svg { display: block; width: 100%; height: auto; min-width: 660px; }
-  .cmp-legend { display: flex; gap: 18px; font-size: 12px; color: var(--muted); margin: 2px 4px 12px; flex-wrap: wrap; }
-  .cmp-legend span { display: flex; align-items: center; gap: 6px; }
-  .cmp-legend .sw { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
-  .cmp-notes { font-size: 11.5px; color: var(--muted); margin-top: 14px; max-width: 780px; line-height: 1.6; }
-  .cmp-notes b { color: var(--text); font-weight: 600; }
-  @media (max-width: 740px) { .cmp-cards { grid-template-columns: 1fr; } }
+  .prop-block { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin-bottom: 16px; }
+  .prop-block h3 { font-size: 15px; font-weight: 650; display: flex; align-items: center; gap: 9px; }
+  .prop-block h3 .num { width: 20px; height: 20px; border-radius: 50%; color: #fff; font-size: 12px;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .prop-block h3 .tag { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .prop-terms { display: flex; gap: 28px; flex-wrap: wrap; margin: 13px 0 6px; }
+  .prop-terms .lbl { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .prop-terms .val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .prop-terms .best { font-size: 10px; font-weight: 700; color: #fff; padding: 1px 6px; border-radius: 99px; margin-left: 5px; vertical-align: 2px; }
+  .prop-chart { overflow-x: auto; margin-top: 8px; }
+  .prop-chart svg { display: block; width: 100%; height: auto; min-width: 520px; }
+  .chart-cap { font-size: 11px; color: var(--muted); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -239,7 +245,7 @@ const chip = dono => { const c = DONO_COLOR[dono] || {bg:'#efefeb', fg:'#8a8a86'
 const liqP = p => p.valorLiquido != null ? p.valorLiquido : p.valor;
 const tipoLabel = p => (p.tipo==='permuta' ? `Permuta financeira ${String(p.permutaPct).replace('.',',')}%`
   : p.tipo==='permuta-fisica' ? `Permuta física ${String(p.permutaPct).replace('.',',')}%`
-  : p.tipo==='venda' ? 'Venda' : 'Outro');
+  : p.tipo==='venda' ? 'Fluxo financeiro' : 'Outro');
 
 const pedidoLote   = (t, l) => l.area * (l.vpm2 || t.vpm2_alvo) / 1e6;
 const pedidoTerreno= t => t.lotes.reduce((s,l)=> s + pedidoLote(t,l), 0);
@@ -394,90 +400,82 @@ function render() {
 function toggle(k){ open.has(k)?open.delete(k):open.add(k); render(); }
 
 // ── COMPARADOR DE FLUXO DE CAIXA ──────────────────────────────────────────────
-const HORIZON = 60;                          // 5 anos, até fechar todos os fluxos
+const HORIZON = 60;                 // 5 anos até fechar os fluxos
+const SALES_START = 18;             // permuta financeira: vendas começam no Lançamento (mês 18)
 const ETAPAS = [
-  { n:'Promessa de Compra e Venda', m:0,  d:'início' },
-  { n:'Análise de Viabilidade',     m:3,  d:'+90 dias' },
-  { n:'Alvará / Escritura',         m:15, d:'+12 meses' },
-  { n:'Lançamento',                 m:18, d:'+90 dias' },
-  { n:'Início das Obras',           m:24, d:'+6 meses' },
-  { n:'Habite-se',                  m:60, d:'+36 meses' },
+  { n:'Promessa',   m:0 },  { n:'Análise', m:3 },  { n:'Alvará', m:15 },
+  { n:'Lançamento', m:18 }, { n:'Obras',   m:24 }, { n:'Habite-se', m:60 },
 ];
-// Projeções anuais (medianas de mercado, ago/2026 — Boletim Focus / FGV), anos 2026..2030
+// Projeções anuais (medianas de mercado, ago/2026 — Focus/FGV), anos 2026..2030
 const PROJ = {
   'IPCA':  [5.30, 4.18, 3.70, 3.50, 3.50],
   'INCC':  [6.50, 5.50, 5.00, 4.50, 4.50],
   'CDI':   [13.90, 11.90, 10.40, 10.00, 9.50],
   'Dólar': [2.00, 1.50, 0.40, 1.90, 1.80],
 };
-const ANOS = [2026, 2027, 2028, 2029, 2030];
-const A_COLOR = '#1a6e4a', B_COLOR = '#6a4ea0';
-const CMP = { loteKey:null, a:0, b:1, idx:'IPCA', corr:true };
+const P1_COLOR = '#1a6e4a', P2_COLOR = '#6a4ea0';
+const CMP = { loteKey:null, a:0, b:1, idx:'IPCA', sales:null };
 
+// curva de vendas: buckets anuais do Lançamento ao Habite-se
+function salesBuckets(){ const b=[]; let m=SALES_START; while(m<=HORIZON){ const fim=Math.min(HORIZON, m+11); b.push({ini:m, fim}); m=fim+1; } return b; }
+function ensureSales(){
+  const bs=salesBuckets();
+  if(!CMP.sales || CMP.sales.length!==bs.length){
+    CMP.sales = bs.map(bk => Math.round((bk.fim-bk.ini+1)/(HORIZON-SALES_START+1)*100));
+    const s=CMP.sales.reduce((a,b)=>a+b,0); CMP.sales[CMP.sales.length-1] += (100-s);   // fecha em 100%
+  }
+}
 const yBucket = m => Math.min(4, Math.floor(m/12));
 const monF = a => Math.pow(1 + a/100, 1/12);
-// correção IPCA acumulada do mês 0 até t (aplicada ao desembolso feito no mês t)
+// correção IPCA acumulada do mês 0 até t (saldo devido reajustado por IPCA)
 function corrIPCA(t){ let f=1; for(let m=0;m<t;m++) f *= monF(PROJ['IPCA'][yBucket(m)]); return f; }
-// valor futuro no Habite-se (mês 60) de R$ 1 recebido no mês t, reinvestido a (índice + 6% a.a.)
-function fvReinv(t, idx){ let f=1; for(let m=t;m<HORIZON;m++) f *= monF(PROJ[idx][yBucket(m)] + 6); return f; }
+// taxa de reinvestimento no mês m — só o Dólar leva +6%
+function reinvRate(m, idx){ return idx==='Dólar' ? PROJ['Dólar'][yBucket(m)] + 6 : PROJ[idx][yBucket(m)]; }
+function fvReinv(t, idx){ let f=1; for(let m=t;m<HORIZON;m++) f *= monF(reinvRate(m, idx)); return f; }
 
 // fluxo base (R$ milhões, moeda de hoje) que o VENDEDOR recebe, por mês 0..60
-function baseFlow(p){
-  const f = new Array(HORIZON+1).fill(0), net = liqP(p);
-  if (p.tipo === 'venda') {                        // fluxo financeiro: sinal + parcelas
-    const sc = p.valor ? net / p.valor : 1;        // rateia o líquido (2% corretagem) proporcional
-    f[0] += (p.sinal||0) * sc;
-    for (let i=1; i<=(p.nParc||0); i++) f[i] += (p.parcela||0) * sc;
-  } else if (p.tipo === 'permuta-fisica') {        // unidades entregues no Habite-se
-    f[HORIZON] += net;
-  } else {                                         // permuta financeira: rateio linear Lançamento→Habite-se
-    const ini = 18, n = HORIZON - ini + 1;
-    for (let m=ini; m<=HORIZON; m++) f[m] += net / n;
+function baseFlow(p){                               // R$ M brutos (sem corretagem), moeda de hoje
+  const f = new Array(HORIZON+1).fill(0), val = p.valor || 0;
+  if (p.tipo === 'venda') {                         // fluxo financeiro: sinal + parcelas
+    f[0] += (p.sinal||0);
+    for (let i=1; i<=(p.nParc||0); i++) f[i] += (p.parcela||0);
+  } else if (p.tipo === 'permuta-fisica') {         // unidades entregues no Habite-se
+    f[HORIZON] += val;
+  } else {                                          // permuta financeira: segue a curva de vendas
+    salesBuckets().forEach((bk,k)=>{ const mm=bk.fim-bk.ini+1, amt=val*(CMP.sales[k]||0)/100/mm;
+      for (let m=bk.ini; m<=bk.fim; m++) f[m] += amt; });
   }
   return f;
 }
-function computeFlow(p, idx, corr){
+function computeFlow(p, idx){
   const base = baseFlow(p);
-  const nominal = base.map((v,t)=> v * (corr ? corrIPCA(t) : 1));
-  const reinv   = nominal.map((v,t)=> v * fvReinv(t, idx));
+  const nominal = base.map((v,t)=> v * corrIPCA(t));      // saldo devido corrigido por IPCA
   const cum = []; let c=0; nominal.forEach(v=>{ c+=v; cum.push(c); });
-  return { nominal, reinv, cum,
-           totN: nominal.reduce((a,b)=>a+b,0),
-           totR: reinv.reduce((a,b)=>a+b,0),
-           first: Math.max(0, nominal.findIndex(v=>v>1e-9)) };
+  const totR = nominal.reduce((a,v,t)=> a + v * fvReinv(t, idx), 0);
+  return { nominal, cum, totN: nominal.reduce((a,b)=>a+b,0), totR };
 }
 
-function drawChart(fA, fB){
-  const W=960, H=380, ml=54, mr=52, mt=16, mb=50;
+function drawChart(f, color, maxBar, maxCum){
+  const W=920, H=250, ml=46, mr=44, mt=16, mb=32;
   const pw=W-ml-mr, ph=H-mt-mb, step=pw/HORIZON;
   const xM = m => ml + (m/HORIZON)*pw;
-  const maxBar = Math.max(1e-6, ...fA.nominal, ...fB.nominal);
-  const maxCum = Math.max(1e-6, fA.cum[HORIZON], fB.cum[HORIZON]);
   const yBar = v => mt + ph*(1 - v/maxBar);
   const yCum = v => mt + ph*(1 - v/maxCum);
-  const bw = Math.max(2, step*0.34);
+  const bw = Math.max(2.4, step*0.5);
   let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="inherit">`;
-  const ticks=4;
+  const ticks=3;
   for(let i=0;i<=ticks;i++){ const v=maxBar*i/ticks, y=yBar(v);
     s+=`<line x1="${ml}" y1="${y.toFixed(1)}" x2="${ml+pw}" y2="${y.toFixed(1)}" stroke="#eee"/>`;
-    s+=`<text x="${ml-8}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="10" fill="#8a8a86">${v.toFixed(1)}</text>`; }
-  for(let i=1;i<=ticks;i++){ const v=maxCum*i/ticks, y=yCum(v);
-    s+=`<text x="${ml+pw+8}" y="${(y+3).toFixed(1)}" text-anchor="start" font-size="10" fill="#8a8a86">${v.toFixed(0)}</text>`; }
+    s+=`<text x="${ml-7}" y="${(y+3).toFixed(1)}" text-anchor="end" font-size="9.5" fill="#8a8a86">${v.toFixed(1)}</text>`; }
   ETAPAS.forEach(e=>{ const x=xM(e.m);
-    s+=`<line x1="${x.toFixed(1)}" y1="${mt}" x2="${x.toFixed(1)}" y2="${mt+ph}" stroke="#ddd" stroke-dasharray="3 3"/>`; });
-  for(let m=0;m<=HORIZON;m+=6){ const x=xM(m);
-    s+=`<text x="${x.toFixed(1)}" y="${mt+ph+16}" text-anchor="middle" font-size="10" fill="#8a8a86">${m}</text>`; }
-  s+=`<text x="${(ml+pw/2).toFixed(1)}" y="${mt+ph+40}" text-anchor="middle" font-size="10.5" fill="#8a8a86">meses desde a Promessa de Compra e Venda</text>`;
-  s+=`<text x="${ml-8}" y="${mt-4}" text-anchor="end" font-size="9.5" fill="#8a8a86">R$ M/mês</text>`;
-  s+=`<text x="${ml+pw+8}" y="${mt-4}" text-anchor="start" font-size="9.5" fill="#8a8a86">acum.</text>`;
-  for(let m=0;m<=HORIZON;m++){
-    if(fA.nominal[m]>1e-9){ const h=ph*(fA.nominal[m]/maxBar);
-      s+=`<rect x="${(xM(m)-bw-0.4).toFixed(1)}" y="${yBar(fA.nominal[m]).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${A_COLOR}" opacity="0.55"/>`; }
-    if(fB.nominal[m]>1e-9){ const h=ph*(fB.nominal[m]/maxBar);
-      s+=`<rect x="${(xM(m)+0.4).toFixed(1)}" y="${yBar(fB.nominal[m]).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${B_COLOR}" opacity="0.55"/>`; }
-  }
-  const path = (f,color)=>{ let d=''; for(let m=0;m<=HORIZON;m++){ d+=(m?'L':'M')+xM(m).toFixed(1)+' '+yCum(f.cum[m]).toFixed(1)+' '; } return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2"/>`; };
-  s += path(fA,A_COLOR) + path(fB,B_COLOR);
+    s+=`<line x1="${x.toFixed(1)}" y1="${mt}" x2="${x.toFixed(1)}" y2="${mt+ph}" stroke="#e2e2dd" stroke-dasharray="3 3"/>`; });
+  for(let m=0;m<=HORIZON;m+=12){ const x=xM(m);
+    s+=`<text x="${x.toFixed(1)}" y="${mt+ph+15}" text-anchor="middle" font-size="9.5" fill="#8a8a86">mês ${m}</text>`; }
+  for(let m=0;m<=HORIZON;m++){ if(f.nominal[m]>1e-9){ const h=ph*(f.nominal[m]/maxBar);
+    s+=`<rect x="${(xM(m)-bw/2).toFixed(1)}" y="${yBar(f.nominal[m]).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.5"/>`; } }
+  let d=''; for(let m=0;m<=HORIZON;m++) d+=(m?'L':'M')+xM(m).toFixed(1)+' '+yCum(f.cum[m]).toFixed(1)+' ';
+  s+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2"/>`;
+  s+=`<text x="${(xM(HORIZON)-3).toFixed(1)}" y="${(yCum(f.cum[HORIZON])-6).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="${color}">${fmtM(f.cum[HORIZON])}</text>`;
   return s + `</svg>`;
 }
 
@@ -488,6 +486,7 @@ function cmpLotes(){
 }
 
 function renderComparador(){
+  ensureSales();
   const root = document.getElementById('cmpRoot');
   const lotes = cmpLotes();
   if(!lotes.length){ root.innerHTML='<p class="muted">Nenhum lote com 2 ou mais propostas para comparar.</p>'; return; }
@@ -496,56 +495,55 @@ function renderComparador(){
   if(CMP.a>=N) CMP.a=0;
   if(CMP.b>=N) CMP.b = N>1?1:0;
   if(CMP.a===CMP.b) CMP.b = (CMP.a+1)%N;
-  const pA=cur.l.props[CMP.a], pB=cur.l.props[CMP.b];
-  const fA=computeFlow(pA,CMP.idx,CMP.corr), fB=computeFlow(pB,CMP.idx,CMP.corr);
+  const p1=cur.l.props[CMP.a], p2=cur.l.props[CMP.b];
+  const f1=computeFlow(p1,CMP.idx), f2=computeFlow(p2,CMP.idx);
+  const maxBar = Math.max(1e-6, ...f1.nominal, ...f2.nominal);
+  const maxCum = Math.max(1e-6, f1.cum[HORIZON], f2.cum[HORIZON]);
+  const max1 = f1.totR >= f2.totR;
+  const reinvLbl = CMP.idx==='Dólar' ? 'Dólar + 6%' : CMP.idx;
 
   const opt=(items,sel)=>items.map(it=>`<option value="${it.v}" ${it.v==sel?'selected':''}>${it.t}</option>`).join('');
   const loteOpts = opt(lotes.map(x=>({v:x.key,t:x.label})), cur.key);
-  const propOptsA= opt(cur.l.props.map((p,i)=>({v:i,t:p.buyer})), CMP.a);
-  const propOptsB= opt(cur.l.props.map((p,i)=>({v:i,t:p.buyer})), CMP.b);
-  const idxOpts  = opt(Object.keys(PROJ).map(k=>({v:k,t:k+' + 6%'})), CMP.idx);
+  const p1Opts   = opt(cur.l.props.map((p,i)=>({v:i,t:p.buyer})), CMP.a);
+  const p2Opts   = opt(cur.l.props.map((p,i)=>({v:i,t:p.buyer})), CMP.b);
+  const idxOpts  = opt(Object.keys(PROJ).map(k=>({v:k,t:k==='Dólar'?'Dólar + 6%':k})), CMP.idx);
 
-  const card=(p,f,color)=>`
-    <div class="cmp-card">
-      <h4><span class="swatch" style="background:${color}"></span>${p.buyer}</h4>
-      <div class="muted" style="font-size:12px;margin-top:3px">${tipoLabel(p)}</div>
-      <div class="row"><span class="k">VGV ofertado</span><span class="v">${fmtVGV(p.vgv)}</span></div>
-      <div class="row"><span class="k">Total recebido (nominal)</span><span class="v">${fmtM(f.totN)}</span></div>
-      <div class="row"><span class="k">Total reinvestido<br>(${CMP.idx} + 6% a.a.)</span><span class="v big">${fmtM(f.totR)}</span></div>
-      <div class="row"><span class="k">1º recebimento</span><span class="v">mês ${f.first}</span></div>
+  const buckets = salesBuckets();
+  const salesFields = buckets.map((bk,k)=>`<div class="yr"><label>Ano ${k+1} <span class="mrange">m${bk.ini}–${bk.fim}</span></label><input type="number" min="0" max="100" value="${CMP.sales[k]}" onchange="CMP.sales[${k}]=+this.value||0;renderComparador()"></div>`).join('');
+  const salesSum = CMP.sales.reduce((a,b)=>a+b,0);
+  const anyPerm = p1.tipo==='permuta' || p2.tipo==='permuta';
+
+  const block=(p,f,color,num,isMax)=>`
+    <div class="prop-block">
+      <h3><span class="num" style="background:${color}">${num}</span>${p.buyer} <span class="tag">${tipoLabel(p)}</span></h3>
+      <div class="prop-terms">
+        <div><span class="lbl">VGV ofertado</span><span class="val">${fmtVGV(p.vgv)}</span></div>
+        <div><span class="lbl">Valor da proposta</span><span class="val">${fmtM(p.valor)}</span></div>
+        <div><span class="lbl">Total recebido</span><span class="val">${fmtM(f.totN)}</span></div>
+        <div><span class="lbl">Reinvestido · ${reinvLbl}</span><span class="val" style="color:${color}">${fmtM(f.totR)}${isMax?`<span class="best" style="background:${color}">maior</span>`:''}</span></div>
+      </div>
+      <div class="prop-chart">${drawChart(f,color,maxBar,maxCum)}</div>
+      <div class="chart-cap">Barras: recebido no mês · Linha: acumulado (total ${fmtM(f.totN)})</div>
     </div>`;
-
-  const dRe = fA.totR - fB.totR;
-  const winner = dRe>=0 ? pA.buyer : pB.buyer;
-  const stepper = ETAPAS.map(e=>`<div class="step"><div class="m">mês ${e.m} · ${e.d}</div><div class="n">${e.n}</div></div>`).join('');
 
   root.innerHTML = `
     <div class="cmp-controls">
       <div class="cmp-field"><label>Terreno / lote</label>
         <select onchange="CMP.loteKey=this.value;CMP.a=0;CMP.b=1;renderComparador()">${loteOpts}</select></div>
-      <div class="cmp-field"><label>Proposta A</label>
-        <select onchange="CMP.a=+this.value;if(CMP.a===CMP.b)CMP.b=(CMP.a+1)%${N};renderComparador()">${propOptsA}</select></div>
-      <div class="cmp-field"><label>Proposta B</label>
-        <select onchange="CMP.b=+this.value;if(CMP.b===CMP.a)CMP.a=(CMP.b+1)%${N};renderComparador()">${propOptsB}</select></div>
+      <div class="cmp-field"><label>Proposta 1</label>
+        <select onchange="CMP.a=+this.value;if(CMP.a===CMP.b)CMP.b=(CMP.a+1)%${N};renderComparador()">${p1Opts}</select></div>
+      <div class="cmp-field"><label>Proposta 2</label>
+        <select onchange="CMP.b=+this.value;if(CMP.b===CMP.a)CMP.a=(CMP.b+1)%${N};renderComparador()">${p2Opts}</select></div>
       <div class="cmp-field"><label>Reinvestimento</label>
         <select onchange="CMP.idx=this.value;renderComparador()">${idxOpts}</select></div>
-      <label class="cmp-check"><input type="checkbox" ${CMP.corr?'checked':''} onchange="CMP.corr=this.checked;renderComparador()"> Corrigir saldo por IPCA</label>
     </div>
-    <div class="stepper">${stepper}</div>
-    <div class="cmp-cards">${card(pA,fA,A_COLOR)}${card(pB,fB,B_COLOR)}</div>
-    <div class="cmp-legend">
-      <span><span class="sw" style="background:${A_COLOR};opacity:.55"></span>Recebimento/mês — ${pA.buyer}</span>
-      <span><span class="sw" style="background:${B_COLOR};opacity:.55"></span>Recebimento/mês — ${pB.buyer}</span>
-      <span><span class="sw" style="background:${A_COLOR};height:3px"></span>Acumulado A</span>
-      <span><span class="sw" style="background:${B_COLOR};height:3px"></span>Acumulado B</span>
+    <div class="sales-box ${anyPerm?'':'off'}">
+      <div class="sales-head">Curva de vendas — permuta financeira <span class="muted">(% das unidades vendidas por ano, do Lançamento ao Habite-se)</span></div>
+      <div class="sales-input">${salesFields}<div class="sales-sum ${salesSum!==100?'bad':''}">soma ${salesSum}%</div></div>
     </div>
-    <div class="cmp-chart">${drawChart(fA,fB)}</div>
-    <p class="cmp-notes">
-      <b>Eixo esquerdo (barras):</b> quanto o vendedor recebe no mês (R$ M). <b>Eixo direito (linhas):</b> acumulado recebido (R$ M).
-      Reinvestindo cada recebimento até o Habite-se (mês 60) a <b>${CMP.idx} + 6% a.a.</b>, <b>${winner}</b> rende <b>${fmtM(Math.abs(dRe))}</b> a mais no total.<br>
-      <b>Regras de desembolso:</b> fluxo financeiro = sinal + 36 parcelas; permuta financeira = rateio linear do Lançamento (mês 18) ao Habite-se (mês 60), conforme vendas e medição de obra; permuta física = valor das unidades no Habite-se. ${CMP.corr?'O saldo devido pela incorporadora é corrigido por IPCA à medida que é desembolsado.':'Correção por IPCA <b>desligada</b> (valores em moeda de hoje).'} Os 2% de corretagem do vendedor estão embutidos no líquido.<br>
-      <b>Projeções anuais (medianas de mercado, ago/2026 — Focus/FGV):</b> ${ANOS.map((y,i)=>`${y} — IPCA ${PROJ.IPCA[i].toString().replace('.',',')}%, INCC ${PROJ.INCC[i].toString().replace('.',',')}%, CDI ${PROJ.CDI[i].toString().replace('.',',')}%, Dólar ${PROJ['Dólar'][i].toString().replace('.',',')}%`).join(' · ')}.
-    </p>`;
+    <div class="stepper">${ETAPAS.map(e=>`<div class="step"><div class="m">mês ${e.m}</div><div class="n">${e.n}</div></div>`).join('')}</div>
+    ${block(p1,f1,P1_COLOR,1,max1)}
+    ${block(p2,f2,P2_COLOR,2,!max1)}`;
 }
 
 function setView(v){
