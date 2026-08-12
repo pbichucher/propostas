@@ -109,6 +109,7 @@
   .sales-input .yr .mrange { color: #b7b7b2; }
   .sales-input input { width: 62px; font: inherit; font-size: 13px; padding: 6px 8px;
     border: 1px solid var(--line); border-radius: 7px; text-align: right; }
+  .sales-input .rep { margin-left: 6px; padding-left: 14px; border-left: 1px solid var(--line); }
   .sales-sum { font-size: 12px; color: var(--muted); padding-bottom: 7px; }
   .sales-sum.bad { color: var(--warn); font-weight: 600; }
 
@@ -189,7 +190,7 @@ const TERRENOS = [
   ]},
   { id:'quadra-45', name:'Quadra 45', vpm2_alvo:2000, lotes:[
     { nome:'Lote 1 — Frente Mar', dono:'Grupo A', area:4887.5, vgv:116.48, props:[
-      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:13, vgv:116.48, valor:15.52, valorLiquido:13.97, vpm2:3177, areaConsiderada:4888, date:'2026-06-10', validade:'2026-07-10', pagamento:'Fluxo de recebíveis + medição de obra. Opção de compra 90 dias.', notes:'Desconto de 10% de comercialização embutido no líquido.' },
+      { buyer:'Riva Incorporadora', tipo:'permuta', permutaPct:12, vgv:119.392, valor:14.327, valorLiquido:14.327, sinalPCV:0.5, escritura:2.0, vpm2:2932, areaConsiderada:4887.5, date:'2026-08-06', validade:'2026-09-05', pagamento:'Sinal R$ 2,5 M (R$ 500 mil na PCV + R$ 2,0 M na escritura/alvará) + permuta financeira 9,91% (R$ 11,83 M) durante as vendas. 416 unid. de 28 m². Opção de compra 90 dias.', notes:'Proposta nova de 06/08/2026 (Praia do Futuro II, 4.887,50 m²). Valor do terreno = 12% do VGV = R$ 14.327.040, sem desconto. ITBI e cartório por conta da compradora.' },
       { buyer:'Tenda Permuta Financeira', tipo:'permuta', permutaPct:10.68, vgv:94.246, valor:10.068, valorLiquido:9.867, vpm2:2064, areaConsiderada:4877.5, date:'2026-06-24', validade:'2026-07-24', pagamento:'Permuta financeira 10,68%. 282 unid. de 39,03 m², T+12, R$ 334.204/unid. Opção de compra 90 dias, lançamento 12+6 meses.', notes:'Via André Romcy / NUAAR. ⚠️ Vendedor paga 2% de corretagem. Valor referencial R$ 10.068.250 (R$ 2.064,22/m²).' },
       { buyer:'Tenda Permuta Física', tipo:'permuta-fisica', permutaPct:12.06, vgv:94.246, valor:11.366, valorLiquido:11.139, vpm2:2330, areaConsiderada:4877.5, date:'2026-06-24', validade:'2026-07-24', pagamento:'Permuta física 12,06% (34 apartamentos). 282 unid. de 39,03 m², T+12. Opção de compra 90 dias, lançamento 12+6 meses.', notes:'Via André Romcy / NUAAR. ⚠️ Vendedor paga 2% de corretagem. Valor referencial R$ 11.366.015,60 (R$ 2.330,29/m²).' },
       { buyer:'Tenda Pagamento', tipo:'venda', vgv:94.246, valor:9.751, valorLiquido:9.556, sinal:0.487528, parcela:0.257307, nParc:36, vpm2:1995, areaConsiderada:4877.5, date:'2026-06-24', validade:'2026-07-24', pagamento:'Fluxo financeiro: sinal R$ 487.528,13 + 36 parcelas de R$ 257.306,51. Opção de compra 90 dias, lançamento 12+6 meses.', notes:'Via André Romcy / NUAAR. ⚠️ Vendedor paga 2% de corretagem. Valor referencial R$ 9.750.562,50 (R$ 1.995/m²).' },
@@ -414,7 +415,7 @@ const PROJ = {
   'Dólar': [2.00, 1.50, 0.40, 1.90, 1.80],
 };
 const P1_COLOR = '#1a6e4a', P2_COLOR = '#6a4ea0';
-const CMP = { loteKey:null, a:0, b:1, idx:'IPCA', sales:null };
+const CMP = { loteKey:null, a:0, b:1, idx:'IPCA', sales:null, repasse:40 };
 
 // curva de vendas: buckets anuais do Lançamento ao Habite-se
 function salesBuckets(){ const b=[]; let m=SALES_START; while(m<=HORIZON){ const fim=Math.min(HORIZON, m+11); b.push({ini:m, fim}); m=fim+1; } return b; }
@@ -431,28 +432,34 @@ const monF = a => Math.pow(1 + a/100, 1/12);
 function corrIPCA(t){ let f=1; for(let m=0;m<t;m++) f *= monF(PROJ['IPCA'][yBucket(m)]); return f; }
 // taxa de reinvestimento no mês m — só o Dólar leva +6%
 function reinvRate(m, idx){ return idx==='Dólar' ? PROJ['Dólar'][yBucket(m)] + 6 : PROJ[idx][yBucket(m)]; }
-function fvReinv(t, idx){ let f=1; for(let m=t;m<HORIZON;m++) f *= monF(reinvRate(m, idx)); return f; }
-
-// fluxo base (R$ milhões, moeda de hoje) que o VENDEDOR recebe, por mês 0..60
-function baseFlow(p){                               // R$ M brutos (sem corretagem), moeda de hoje
+// fluxo base (R$ milhões, moeda de hoje). Cada entrada vai para a linha e é reinvestida até o mês 60.
+function baseFlow(p){                               // R$ M brutos (sem corretagem)
   const f = new Array(HORIZON+1).fill(0), val = p.valor || 0;
-  if (p.tipo === 'venda') {                         // fluxo financeiro: sinal + parcelas
+  const ALVARA = 15;                                // escritura / alvará = mês 15
+  if (p.tipo === 'venda') {                         // fluxo financeiro: sinal na cabeça, parcelas a partir do alvará
     f[0] += (p.sinal||0);
-    for (let i=1; i<=(p.nParc||0); i++) f[i] += (p.parcela||0);
+    for (let i=0; i<(p.nParc||0); i++) f[ALVARA+i] += (p.parcela||0);
   } else if (p.tipo === 'permuta-fisica') {         // unidades entregues no Habite-se
     f[HORIZON] += val;
-  } else {                                          // permuta financeira: segue a curva de vendas
-    salesBuckets().forEach((bk,k)=>{ const mm=bk.fim-bk.ini+1, amt=val*(CMP.sales[k]||0)/100/mm;
+  } else {                                          // permuta financeira
+    let upfront = 0;
+    if (p.sinalPCV)  { f[0] += p.sinalPCV;  upfront += p.sinalPCV; }        // ex.: Riva 500k na PCV
+    if (p.escritura) { f[ALVARA] += p.escritura; upfront += p.escritura; }  // ex.: Riva 2M na escritura
+    const vendas = Math.max(0, val - upfront), rep = (CMP.repasse||0)/100;
+    const entrada = vendas * (1 - rep);             // entrada dos compradores, ao longo das vendas
+    salesBuckets().forEach((bk,k)=>{ const mm=bk.fim-bk.ini+1, amt=entrada*(CMP.sales[k]||0)/100/mm;
       for (let m=bk.ini; m<=bk.fim; m++) f[m] += amt; });
+    f[HORIZON] += vendas * rep;                     // repasse dos bancos no Habite-se
   }
   return f;
 }
 function computeFlow(p, idx){
   const base = baseFlow(p);
   const nominal = base.map((v,t)=> v * corrIPCA(t));      // saldo devido corrigido por IPCA
-  const cum = []; let c=0; nominal.forEach(v=>{ c+=v; cum.push(c); });
-  const totR = nominal.reduce((a,v,t)=> a + v * fvReinv(t, idx), 0);
-  return { nominal, cum, totN: nominal.reduce((a,b)=>a+b,0), totR };
+  const bal = new Array(HORIZON+1).fill(0);               // saldo reinvestido: cada entrada rende até o mês 60
+  bal[0] = nominal[0];
+  for (let m=1; m<=HORIZON; m++) bal[m] = bal[m-1]*monF(reinvRate(m, idx)) + nominal[m];
+  return { nominal, bal, totN: nominal.reduce((a,b)=>a+b,0), totR: bal[HORIZON] };
 }
 
 function drawChart(f, color, maxBar, maxCum){
@@ -473,9 +480,9 @@ function drawChart(f, color, maxBar, maxCum){
     s+=`<text x="${x.toFixed(1)}" y="${mt+ph+15}" text-anchor="middle" font-size="9.5" fill="#8a8a86">mês ${m}</text>`; }
   for(let m=0;m<=HORIZON;m++){ if(f.nominal[m]>1e-9){ const h=ph*(f.nominal[m]/maxBar);
     s+=`<rect x="${(xM(m)-bw/2).toFixed(1)}" y="${yBar(f.nominal[m]).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.5"/>`; } }
-  let d=''; for(let m=0;m<=HORIZON;m++) d+=(m?'L':'M')+xM(m).toFixed(1)+' '+yCum(f.cum[m]).toFixed(1)+' ';
+  let d=''; for(let m=0;m<=HORIZON;m++) d+=(m?'L':'M')+xM(m).toFixed(1)+' '+yCum(f.bal[m]).toFixed(1)+' ';
   s+=`<path d="${d}" fill="none" stroke="${color}" stroke-width="2"/>`;
-  s+=`<text x="${(xM(HORIZON)-3).toFixed(1)}" y="${(yCum(f.cum[HORIZON])-6).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="${color}">${fmtM(f.cum[HORIZON])}</text>`;
+  s+=`<text x="${(xM(HORIZON)-3).toFixed(1)}" y="${(yCum(f.bal[HORIZON])-6).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="${color}">${fmtM(f.bal[HORIZON])}</text>`;
   return s + `</svg>`;
 }
 
@@ -498,7 +505,7 @@ function renderComparador(){
   const p1=cur.l.props[CMP.a], p2=cur.l.props[CMP.b];
   const f1=computeFlow(p1,CMP.idx), f2=computeFlow(p2,CMP.idx);
   const maxBar = Math.max(1e-6, ...f1.nominal, ...f2.nominal);
-  const maxCum = Math.max(1e-6, f1.cum[HORIZON], f2.cum[HORIZON]);
+  const maxCum = Math.max(1e-6, f1.bal[HORIZON], f2.bal[HORIZON]);
   const max1 = f1.totR >= f2.totR;
   const reinvLbl = CMP.idx==='Dólar' ? 'Dólar + 6%' : CMP.idx;
 
@@ -523,7 +530,7 @@ function renderComparador(){
         <div><span class="lbl">Reinvestido · ${reinvLbl}</span><span class="val" style="color:${color}">${fmtM(f.totR)}${isMax?`<span class="best" style="background:${color}">maior</span>`:''}</span></div>
       </div>
       <div class="prop-chart">${drawChart(f,color,maxBar,maxCum)}</div>
-      <div class="chart-cap">Barras: recebido no mês · Linha: acumulado (total ${fmtM(f.totN)})</div>
+      <div class="chart-cap">Barras: recebido no mês · Linha: saldo reinvestido, evolui até o mês 60 (chega a ${fmtM(f.totR)})</div>
     </div>`;
 
   root.innerHTML = `
@@ -538,8 +545,10 @@ function renderComparador(){
         <select onchange="CMP.idx=this.value;renderComparador()">${idxOpts}</select></div>
     </div>
     <div class="sales-box ${anyPerm?'':'off'}">
-      <div class="sales-head">Curva de vendas — permuta financeira <span class="muted">(% das unidades vendidas por ano, do Lançamento ao Habite-se)</span></div>
-      <div class="sales-input">${salesFields}<div class="sales-sum ${salesSum!==100?'bad':''}">soma ${salesSum}%</div></div>
+      <div class="sales-head">Curva de vendas e repasse — permuta financeira <span class="muted">(% vendido por ano durante a obra; % repasse = parte paga pelos bancos no Habite-se)</span></div>
+      <div class="sales-input">${salesFields}<div class="sales-sum ${salesSum!==100?'bad':''}">soma ${salesSum}%</div>
+        <div class="yr rep"><label>% repasse <span class="mrange">Habite-se</span></label><input type="number" min="0" max="100" value="${CMP.repasse}" onchange="CMP.repasse=+this.value||0;renderComparador()"></div>
+      </div>
     </div>
     <div class="stepper">${ETAPAS.map(e=>`<div class="step"><div class="m">mês ${e.m}</div><div class="n">${e.n}</div></div>`).join('')}</div>
     ${block(p1,f1,P1_COLOR,1,max1)}
